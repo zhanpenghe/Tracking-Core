@@ -16,11 +16,14 @@ void setAgent(agent_t* agent, int con_fd, agent_t* next)
 	agent->tid = NULL;
 }
 
-void printRSSIFromAgent(agent_t *agent)
+void* printRSSIFromAgent(void *arg)
 {
 	int len;
 	char buf[1025];
 	char ret[] = {'z', '\0'}; 	//message to confirm the data arrival
+
+	printf("Start handling...\n");
+	agent_t *agent = (agent_t *) arg;
 	pthread_t temp = pthread_self();
 
 	//set the thread id first;

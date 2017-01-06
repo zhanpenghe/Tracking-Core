@@ -7,18 +7,17 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-#include <time.h>
-
+#include <pthread.h>
 #include "agentHandler.h"
 
 int port = 9999;
+
+void agent_thread_init(int connfd);
 
 int main(int argc, char *argv[])
 {
 	int listenfd = 0, connfd = 0; //file descriptors
 	struct sockaddr_in serv_addr;
-	struct sockaddr_in* client_addr = malloc(sizeof(struct sockaddr_in));
-	char ip_str[INET_ADDRSTRLEN];
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&serv_addr, '0', sizeof(serv_addr));
@@ -34,13 +33,32 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		printf("Listening on port %d...\n", port);
-		connfd = accept(listenfd, (struct sockaddr*)client_addr, NULL);
-		/*struct in_addr ipAddr = client_addr->sin_addr;
-		inet_ntop(AF_INET, &ipAddr, ip_str, INET_ADDRSTRLEN);*/
-		printf("Get connection from %s:%d\n", inet_ntoa(client_addr->sin_addr),(int)ntohs(client_addr->sin_port));
-		agent_t *agent = malloc(sizeof(agent_t));
-		setAgent(agent, connfd, NULL);
-		
-		sleep(100);
+		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+
+		//set up agent handling thread
+		agent_thread_init(connfd);
+		//sleep(100);
 	}
 }
+
+void agent_thread_init(int connfd)
+{
+	struct sockaddr_in addr;
+	socklen_t len = sizeof(addr);
+	agent_t *agent;
+	pthread_t tid;
+
+	getpeername(connfd, (struct sockaddr *)&addr, &len);
+	printf("Get connection from  %s:%d\n", inet_ntoa(addr.sin_addr),(int)ntohs(addr.sin_port)); 
+
+	//start agent handling thread
+	agent = malloc(sizeof(agent_t));
+	setAgent(agent, connfd, NULL);
+	pthread_create(&tid, NULL, printRSSIFromAgent, (void*)agent);
+	printf("thread created\n");
+}
+
+
+
+
+
