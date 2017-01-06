@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
 
-
 typedef struct agent{
 	pthread_t *tid;
 	int con_fd;	//file descriptor fo the socket
@@ -39,10 +38,4 @@ void* printRSSIFromAgent(void *arg)
 		write(agent->con_fd, ret, 2);
 	}
 }
-
-
-
-
-
-
 
