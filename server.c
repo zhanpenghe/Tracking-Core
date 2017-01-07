@@ -17,7 +17,7 @@
 #include "agentHandler.h"
 #include "headers/server.h"
 
-int port = 9999;	 //default port
+int port = 9999;	//default port
 
 int main(int argc, char **argv)
 {
@@ -117,8 +117,4 @@ void agent_thread_init(int connfd)
 	pthread_create(&tid, NULL, printRSSIFromAgent, (void*)agent);
 	printf("thread created\n");
 }
-
-
-
-
 
