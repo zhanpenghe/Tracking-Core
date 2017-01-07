@@ -1,6 +1,21 @@
 /*
  * A .ini file reader for program configuration
  * @Author Adam Ho
+ *
+ *
+ * Usage example:
+ *
+ * paramList_t *list = (paramList_t*) malloc(sizeof(paramList_t))
+ * init_param_list(list);
+ * read_ini_file("conf.ini", list);
+ * param_t *p;
+ * 
+ * while((p = next_param(list))!=NULL){
+ *	//do someting to p->key and p->value
+ * }
+ *
+ * free_param_list(list);
+ *
  */
 
 #include <stdio.h>
