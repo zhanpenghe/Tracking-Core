@@ -1,6 +1,20 @@
 /*
  * A simple Logger for c programs
  * @Author Adam Ho
+ *
+ * Usage:
+ *
+ * eg01: //keep the logger in buffer and use log_to_file() to log for multiple times
+ * logger_t logger = (logger_t*) malloc(sizeof(logger_t));
+ * 
+ * init_logger(logger, mode, filepath);
+ * log_to_file(logger, buf, len);
+ *
+ * free_logger(logger);
+ *
+ * eg02: //one time writinhg...
+ * char str[] = "blablabla\n";
+ * write_to_file("./testlogger.txt", 'a', str, strlen(str));
  */
 #include <stdio.h>
 #include <stdlib.h>
