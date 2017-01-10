@@ -26,7 +26,7 @@ typedef struct parameter
 {
 	char* key;
 	char* value;
-	struct parameter* next; 
+	struct parameter* next;
 }param_t;
 
 typedef struct paramList{
@@ -76,6 +76,7 @@ void free_param_list(paramList_t *list)
 		freeParam(curr);
 		curr = next;
 	}
+	free(list);
 }
 
 void add_param(paramList_t *list, param_t *p)
@@ -147,16 +148,16 @@ void setParamFromString(param_t *p, char* line, size_t len)
 		{
 			key_end = i-1;
 			val_start = i+1;
-		
+
 			trim_str(line, &key_start, &key_end, (int) len);
 			key = (char*) malloc(key_end-key_start+2);
 			strncpy(key, line+key_start, key_end-key_start+1);
-			key[key_end-key_start+2] = 0;
+			key[key_end-key_start+1] = 0;
 
 			trim_str(line, &val_start, &val_end, (int) len);
 			value = (char*) malloc(val_end-val_start+2);
 			strncpy(value, line+val_start, val_end-val_start+1);
-			value[val_end-val_start+2] = 0;
+			value[val_end-val_start+1] = 0;
 
 			setParam(p, key, value);
 			break;
@@ -187,7 +188,7 @@ void read_ini_file(const char* filename, paramList_t *list)
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 
-		if(line[0]=='#' || read <= (size_t)3) continue;
+		if(line[0]=='#' || read < (size_t)3) continue;
 
         param_t *p = (param_t*)malloc(sizeof(param_t));
         setParamFromString(p, line, read);
