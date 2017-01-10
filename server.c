@@ -13,11 +13,13 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "agentHandler.h"
 #include "headers/server.h"
 
 int port = 9999;	//default port
+logger_t *logger;
 
 int main(int argc, char **argv)
 {
@@ -27,6 +29,15 @@ int main(int argc, char **argv)
 
 	load_commandline_arg(argc, argv);
 
+	//instal a signal handler here
+	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
+			printf("SIGINT install error\n");
+			exit(1);
+    }
+
+    logger = (logger_t*) malloc(sizeof(logger_t));
+    init_logger(logger, 'w', "log.txt");
+    printf("[INFO] Successfully created logger\n");
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
@@ -72,6 +83,14 @@ static void usage(){
 			"\t-h                      Help.\n");
 }
 
+
+void SIGINT_Handler(int sig)
+{
+	printf("\n[INFO] QUITING THE PROGRAM HERE\n");
+	free_logger(logger);
+	exit(0);
+}
+
 //return the file descriptor
 int start_server_thread()
 {
@@ -114,7 +133,11 @@ void agent_thread_init(int connfd)
 	//start agent handling thread
 	agent = malloc(sizeof(agent_t));
 	setAgent(agent, connfd, NULL);
-	pthread_create(&tid, NULL, printRSSIFromAgent, (void*)agent);
+	agent_and_logger_t al;
+	al.agent = agent;
+	al.logger = logger;
+
+	pthread_create(&tid, NULL, logRSSIFromAgent, (void*)&al);
 	printf("thread created\n");
 }
 

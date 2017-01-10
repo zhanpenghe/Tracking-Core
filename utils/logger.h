@@ -23,7 +23,7 @@ typedef struct logger{
 	
 	FILE* fd; //file descriptor
 	char mode; // 'w' for overwriting, 'a' for appending
-
+	pthread_mutex_t lock;
 }logger_t;
 
 void init_logger(logger_t *logger, char mode, char *path)
@@ -43,7 +43,15 @@ void init_logger(logger_t *logger, char mode, char *path)
 	}
 
 	logger->mode = mode;
-	if(logger->fd == NULL) printf("Failed to open %s to write.\n", path);
+	if(pthread_mutex_init(&logger->lock, NULL) != 0)
+	{
+		printf("\n mutex init failed\n");
+		exit(1);
+	}
+	if(logger->fd == NULL) {
+		printf("Failed to open %s to write.\n", path);
+		exit(1);
+	}
 }
 
 void log_to_file(logger_t *logger, char *str, int len){
