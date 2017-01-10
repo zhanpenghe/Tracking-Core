@@ -31,7 +31,7 @@ typedef struct parameter
 
 typedef struct paramList{
 	param_t* head;
-	param_t* end;
+	param_t* tail;
 	param_t* position;
 	int counter;
 	int size;
@@ -57,7 +57,7 @@ void init_param_list(paramList_t *list)
 {
 	if(list == NULL) return;
 	list->head = NULL;
-	list->end = NULL;
+	list->tail = NULL;
 	list->position = NULL;
 	list->size = 0;
 	list->counter = 0;
@@ -88,13 +88,13 @@ void add_param(paramList_t *list, param_t *p)
 	{
 		list->head = p;
 		list->position = p;
-		list->end = p;
+		list->tail = p;
 		list->size = 1;
 		return;
 	}
 
-	list->end->next = p;
-	list->end = p;
+	list->tail->next = p;
+	list->tail = p;
 	list->size+=1;
 }
 

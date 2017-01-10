@@ -35,8 +35,8 @@ typedef struct value{
 typedef struct param_s
 {
 	char *key;
-	val_t *start;
-	val_t *end;
+	val_t *head;
+	val_t *tail;
 	val_t *position;
 	int counter;
 	int size;
@@ -45,8 +45,8 @@ typedef struct param_s
 
 typedef struct param_slist
 {
-	param_s_t *start;
-	param_s_t *end;
+	param_s_t *head;
+	param_s_t *tail;
 	param_s_t *position;
 	int counter;
 	int size;
@@ -72,8 +72,8 @@ void init_param_s(param_s_t *p)
 {
 	if(p == NULL) return;
 	p->key = NULL;
-	p->start = NULL;
-	p->end = NULL;
+	p->head = NULL;
+	p->tail = NULL;
 	p->position = NULL;
 	p->size = 0;
 	p->counter = 0;
@@ -84,7 +84,7 @@ void free_param_s(param_s_t *p)
 	val_t *curr, *next;
 	if(p == NULL) return;
 
-	curr = p->start;
+	curr = p->head;
 	while(curr != NULL){
 		next = curr->next;
 		printf("freeing val: %s\n", curr->val);
@@ -99,8 +99,8 @@ void init_param_slist(param_slist_t *list)
 	if(list == NULL) return;
 
 	list->counter = 0;
-	list->start = NULL;
-	list->end = NULL;
+	list->head = NULL;
+	list->tail = NULL;
 	list->position = NULL;
 	list->size = 0;
 }
@@ -110,7 +110,7 @@ void free_param_slist(param_slist_t *list)
 	param_s_t *curr, *next;
 	if(list == NULL) return;
 
-	curr = list->start;
+	curr = list->head;
 	while(curr != NULL)
 	{
 		next = curr->next;
@@ -131,15 +131,15 @@ void add_val_to_params(param_s_t *p, val_t * v)
 	v->next = NULL;
 	if(p->size == 0)
 	{
-		p->start = v;
-		p->end = v;
+		p->head = v;
+		p->tail = v;
 		p->size = 1;
 		p->position = v;
 		return;
 	}
 
-	p->end->next = v;
-	p->end = v;
+	p->tail->next = v;
+	p->tail = v;
 	p->size+=1;
 }
 
@@ -154,7 +154,7 @@ val_t *next_val(param_s_t *p)
 	}
 
 	val_t *temp = p->position;
-	p->position = (p->position->next != NULL) ? p->position->next : p->start;
+	p->position = (p->position->next != NULL) ? p->position->next : p->head;
 	p->counter+=1;
 
 	return temp;
@@ -217,15 +217,15 @@ void add_param_s_to_list(param_slist_t *list, param_s_t *p)
 	p->next = NULL;
 	if(list->size == 0)
 	{
-		list->start = p;
-		list->end = p;
+		list->head = p;
+		list->tail = p;
 		list->size = 1;
-		list->position = list->start;
+		list->position = list->head;
 		return;
 	}
 
-	list->end->next = p;
-	list->end = p;
+	list->tail->next = p;
+	list->tail = p;
 	list->size+=1;
 }
 
@@ -241,7 +241,7 @@ param_s_t *next_param_s(param_slist_t *list)
 	}
 
 	param_s_t *temp = list->position;
-	list->position = (list->position->next != NULL) ? list->position->next : list->start;
+	list->position = (list->position->next != NULL) ? list->position->next : list->head;
 	list->counter+=1;
 
 	return temp;
