@@ -122,7 +122,6 @@ void free_param_slist(param_slist_t *list)
 }
 
 /*************************String--->param_s_t functions******************************/
-
 void add_val_to_params(param_s_t *p, val_t * v)
 {
 	if(p == NULL || v == NULL) return;

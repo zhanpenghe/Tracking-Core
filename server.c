@@ -18,8 +18,11 @@
 #include "agentHandler.h"
 #include "headers/server.h"
 
+int listenfd = 0; //file descriptors
 int port = 9999;	//default port
 logger_t *logger;
+
+blist_t *list;	// blist.. holds all the information
 
 int main(int argc, char **argv)
 {
@@ -29,7 +32,7 @@ int main(int argc, char **argv)
 
 	load_commandline_arg(argc, argv);
 
-	//instal a signal handler here
+	//install a signal handler here
 	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
 			printf("SIGINT install error\n");
 			exit(1);
@@ -37,6 +40,10 @@ int main(int argc, char **argv)
 
     logger = (logger_t*) malloc(sizeof(logger_t));
     init_logger(logger, 'w', "log.txt");
+
+    list = (blist_t *) malloc(sizeof(blist_t));
+    init_blist(list);
+
     printf("[INFO] Successfully created logger\n");
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
@@ -53,7 +60,7 @@ int main(int argc, char **argv)
 
 void load_commandline_arg(int argc, char** argv)
 {
-	int c; 
+	int c;
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	opterr = 0;
@@ -88,13 +95,17 @@ void SIGINT_Handler(int sig)
 {
 	printf("\n[INFO] QUITING THE PROGRAM HERE\n");
 	free_logger(logger);
+	shutdown(listenfd, SHUT_RDWR);
+	close(listenfd);
+	print_blist(list);
+	free_blist(list);
 	exit(0);
 }
 
 //return the file descriptor
 int start_server_thread()
 {
-	int listenfd = 0; //file descriptors
+	
 	struct sockaddr_in serv_addr;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -119,8 +130,30 @@ int start_server_thread()
 	return listenfd;
 }
 
-
 void agent_thread_init(int connfd)
+{
+	struct sockaddr_in addr;
+	socklen_t len = sizeof(addr);
+	agent_t *agent;
+	pthread_t tid;
+
+	getpeername(connfd, (struct sockaddr *)&addr, &len);
+	printf("Get connection from  %s:%d\n", inet_ntoa(addr.sin_addr),(int)ntohs(addr.sin_port)); 
+
+	//start agent handling thread
+	agent = malloc(sizeof(agent_t));
+	setAgent(agent, connfd, NULL);
+
+	agent_logger_blist_t albl;
+	albl.agent = agent;
+	albl.logger = logger;
+	albl.list = list;
+
+	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
+	printf("thread created\n");
+}
+
+void agent_thread_init_log(int connfd)
 {
 	struct sockaddr_in addr;
 	socklen_t len = sizeof(addr);
@@ -137,7 +170,7 @@ void agent_thread_init(int connfd)
 	al.agent = agent;
 	al.logger = logger;
 
-	pthread_create(&tid, NULL, logRSSIFromAgent, (void*)&al);
+	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&al);
 	printf("thread created\n");
 }
 

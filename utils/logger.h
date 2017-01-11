@@ -45,7 +45,7 @@ void init_logger(logger_t *logger, char mode, char *path)
 	logger->mode = mode;
 	if(pthread_mutex_init(&logger->lock, NULL) != 0)
 	{
-		printf("\n mutex init failed\n");
+		printf("\nLogger mutex init failed\n");
 		exit(1);
 	}
 	if(logger->fd == NULL) {
