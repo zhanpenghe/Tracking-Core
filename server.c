@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     init_logger(logger, 'w', "log.txt");
 
     list = (blist_t *) malloc(sizeof(blist_t));
-    init_blist(list);
+    init_blist(list, 10);
 
     printf("[INFO] Successfully created logger\n");
 	gethostname(hostname, sizeof(hostname));
@@ -52,10 +52,9 @@ int main(int argc, char **argv)
 	{
 		printf("[INFO] Listening on port %d...\n", port);
 		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
-		//fcntl(connfd, F_SETFL, O_NONBLOCK);  // set to non-blocking
+
 		//set up agent handling thread
 		agent_thread_init(connfd);
-		//sleep(100);
 	}
 }
 
@@ -91,14 +90,14 @@ static void usage(){
 			"\t-h                      Help.\n");
 }
 
-
 void SIGINT_Handler(int sig)
 {
 	printf("\n[INFO] QUITING THE PROGRAM HERE\n");
 	void *tret;
+
+	//lock everything to prevent I/O's from other threads..
 	pthread_mutex_lock(&logger->lock);
 	pthread_mutex_lock(&list->lock);
-	//sleep(1000);
 	
 	int i = 0;
 	for(;i<counter; i++)
@@ -114,21 +113,18 @@ void SIGINT_Handler(int sig)
 	shutdown(listenfd, SHUT_RDWR);
 	close(listenfd);
 
-	free_logger(logger);
-	
-	print_blist(list);
-	free_blist(list);
-
-
 	pthread_mutex_unlock(&logger->lock);
 	pthread_mutex_unlock(&list->lock);
+
+	free_logger(logger);	
+	print_blist(list);
+	free_blist(list);
 	exit(0);
 }
 
 //return the file descriptor
 int start_server_thread()
 {
-	
 	struct sockaddr_in serv_addr;
 	int yes = 1;
 
