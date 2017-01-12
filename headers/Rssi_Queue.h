@@ -185,7 +185,7 @@ rssi_t *dequeue(rssi_queue_t *q)
 void enqueue(rssi_queue_t *q, rssi_t *r)
 {
 	if(q == NULL || r == NULL) return;
-	printf("en %d\n", q->size);
+
 	r->next = NULL;
 	if(q->head == NULL)
 	{

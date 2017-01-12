@@ -17,12 +17,16 @@
 
 #include "agentHandler.h"
 #include "headers/server.h"
+#include "headers/agentInfo.h"
 
 int listenfd = 0; //file descriptors
 int port = 9999;	//default port
 logger_t *logger;
-agent_t *con_ids[10];
+
+agent_t *agent_connections[20];	//need to be change..todo
 int counter = 0;
+int agent_num = 0;
+
 blist_t *list;	// blist.. holds all the information
 
 int main(int argc, char **argv)
@@ -30,7 +34,17 @@ int main(int argc, char **argv)
 	char hostname[100];
 	int connfd = 0;
 	int listenfd = start_server_thread();
+
 	load_commandline_arg(argc, argv);
+
+	//get agent information from list_agent.txt
+	param_slist_t *agent_infos = (param_slist_t*) malloc(sizeof(param_slist_t));
+	agent_num = get_agent_count(agent_infos);
+
+	agent_info_t infos[agent_num];		//to be used later in calculation
+
+	load_agent_infos(infos, agent_infos);
+	free_param_slist(agent_infos);
 
 	//install a signal handler here
 	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
@@ -61,7 +75,6 @@ int main(int argc, char **argv)
 void load_commandline_arg(int argc, char** argv)
 {
 	int c;
-
 	setvbuf(stdout, NULL, _IONBF, 0);
 	opterr = 0;
 
@@ -103,11 +116,11 @@ void SIGINT_Handler(int sig)
 	for(;i<counter; i++)
 	{
 		printf("%d\n", i);
-		close(con_ids[i]->con_fd);
-		pthread_cancel(*con_ids[i]->tid);
+		close(agent_connections[i]->con_fd);
+		pthread_cancel(*agent_connections[i]->tid);
 
-		free(con_ids[i]->tid);
-		free(con_ids[i]);
+		free(agent_connections[i]->tid);
+		free(agent_connections[i]);
 	}
 
 	shutdown(listenfd, SHUT_RDWR);
@@ -170,7 +183,7 @@ void agent_thread_init(int connfd)
 	albl.logger = logger;
 	albl.list = list;
 
-	con_ids[counter] = agent;
+	agent_connections[counter] = agent;
 	counter+=1;	
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
 

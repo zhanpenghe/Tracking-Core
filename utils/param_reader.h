@@ -25,7 +25,6 @@
 
 #include "configure.h"
 
-
 typedef struct value{
 	char* val;
 	struct value* next;
@@ -87,7 +86,7 @@ void free_param_s(param_s_t *p)
 	curr = p->head;
 	while(curr != NULL){
 		next = curr->next;
-		printf("freeing val: %s\n", curr->val);
+		//printf("freeing val: %s\n", curr->val);
 		free_val(curr);
 		curr = next;
 	}
@@ -114,7 +113,7 @@ void free_param_slist(param_slist_t *list)
 	while(curr != NULL)
 	{
 		next = curr->next;
-		printf("\nFREEING PARAM: %s\n", curr->key);
+		//printf("\nFREEING PARAM: %s\n", curr->key);
 		free_param_s(curr);
 		curr = next;
 	}
@@ -228,7 +227,6 @@ void add_param_s_to_list(param_slist_t *list, param_s_t *p)
 	list->size+=1;
 }
 
-
 param_s_t *next_param_s(param_slist_t *list)
 {
 	if(list == NULL) return NULL;
@@ -250,7 +248,7 @@ void read_param_file(const char* filename, param_slist_t *list)
 {
 	FILE* fp;
 	char* line = NULL;
-	size_t len = 0, read;
+	size_t len = 0, read = -1;
 
 	if(filename == NULL){
 		printf("[ERROR] Configuration filename is null\n");
@@ -264,12 +262,11 @@ void read_param_file(const char* filename, param_slist_t *list)
 	}
 
 	while ((read = getline(&line, &len, fp)) != -1) {
-
 		if(line[0]=='#' || read < (size_t)3) continue;
 
-		printf("\n%s\n", line);
+		//printf("\n%s\n", line);
 
-		param_s_t * p = (param_s_t*) malloc(sizeof(param_s_t));
+		param_s_t *p = (param_s_t*)malloc(sizeof(param_s_t));
 		set_param_s_from_str(p, line, read);
 		
 		add_param_s_to_list(list, p);

@@ -13,7 +13,6 @@ typedef struct agentAndLogger
 {
 	agent_t *agent;
 	logger_t *logger;
-
 }agent_and_logger_t;
 
 //agent, Logger, Blist
