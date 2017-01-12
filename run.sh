@@ -1,3 +1,3 @@
 make
-./server
-rm server
+./tracking_server
+rm tracking_server

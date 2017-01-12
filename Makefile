@@ -1,4 +1,4 @@
-OBJS = server
+OBJS = tracking_server
 LIBS = -lpthread
 CC = gcc
 FILE = ./server.c

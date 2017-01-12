@@ -67,6 +67,7 @@ void init_rssi(rssi_t *r, int8_t rssi_val)
 void free_rssi(rssi_t *r)
 {
 	if(r == NULL) return;
+	printf("free: %d\n", r->rssi);
 	free(r);
 }
 
@@ -213,7 +214,7 @@ void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac)
 
 	enqueue(temp,r);
 
-	b->head = temp;
+	b->tail->next = temp;
 	b->tail = temp;
 
 }
@@ -222,15 +223,15 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 {
 	beacon_t *temp;
 	if(list == NULL || agent_mac == NULL || beacon_mac == NULL) return;
-
-	if(list->head == NULL){
+	printf("%d\n", list->size);
+	if(list->head == NULL || list->size == 0){
 		temp = (beacon_t *) malloc(sizeof(beacon_t));
 		init_beacon(temp, beacon_mac);
 		add_rssi_to_beacon(temp, rssi_val, agent_mac);
 
 		list->head = temp;
 		list->tail = temp;
-		list->size == 1;
+		list->size = 1;
 		return;
 	}
 
@@ -238,7 +239,7 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 	while(temp != NULL)
 	{
 		if(strcmp(temp->mac, beacon_mac) == 0){
-			printf("%s,%s\n", temp->mac, beacon->mac);
+			printf("%s,%s\n", temp->mac, beacon_mac);
 			add_rssi_to_beacon(temp, rssi_val, agent_mac);
 			return;
 		}
@@ -250,7 +251,7 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 	
 	add_rssi_to_beacon(temp, rssi_val, agent_mac);
 	
-	list->head = temp;
+	list->tail->next = temp;
 	list->tail = temp;
 	list->size+= 1;
 

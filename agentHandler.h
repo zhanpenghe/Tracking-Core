@@ -93,6 +93,7 @@ void* log_and_storeRSSIFromAgent(void *arg)
 	char buf[1025];
 	char ret[] = {'z', '\0'}; 	//message to confirm the data arrival
 
+
 	printf("Start handling...\n");
 	agent_t *agent = ((agent_logger_blist_t *) arg)->agent;
 	logger_t *logger = ((agent_logger_blist_t *) arg)->logger;
@@ -121,5 +122,6 @@ void* log_and_storeRSSIFromAgent(void *arg)
 
 		write(agent->con_fd, ret, 2);
 	}
+
 }
 

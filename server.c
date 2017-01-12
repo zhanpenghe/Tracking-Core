@@ -21,7 +21,8 @@
 int listenfd = 0; //file descriptors
 int port = 9999;	//default port
 logger_t *logger;
-
+agent_t *con_ids[10];
+int counter = 0;
 blist_t *list;	// blist.. holds all the information
 
 int main(int argc, char **argv)
@@ -29,7 +30,6 @@ int main(int argc, char **argv)
 	char hostname[100];
 	int connfd = 0;
 	int listenfd = start_server_thread();
-
 	load_commandline_arg(argc, argv);
 
 	//install a signal handler here
@@ -52,6 +52,7 @@ int main(int argc, char **argv)
 	{
 		printf("[INFO] Listening on port %d...\n", port);
 		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+		//fcntl(connfd, F_SETFL, O_NONBLOCK);  // set to non-blocking
 		//set up agent handling thread
 		agent_thread_init(connfd);
 		//sleep(100);
@@ -94,11 +95,33 @@ static void usage(){
 void SIGINT_Handler(int sig)
 {
 	printf("\n[INFO] QUITING THE PROGRAM HERE\n");
-	free_logger(logger);
+	void *tret;
+	pthread_mutex_lock(&logger->lock);
+	pthread_mutex_lock(&list->lock);
+	//sleep(1000);
+	
+	int i = 0;
+	for(;i<counter; i++)
+	{
+		printf("%d\n", i);
+		close(con_ids[i]->con_fd);
+		pthread_cancel(*con_ids[i]->tid);
+
+		free(con_ids[i]->tid);
+		free(con_ids[i]);
+	}
+
 	shutdown(listenfd, SHUT_RDWR);
 	close(listenfd);
+
+	free_logger(logger);
+	
 	print_blist(list);
 	free_blist(list);
+
+
+	pthread_mutex_unlock(&logger->lock);
+	pthread_mutex_unlock(&list->lock);
 	exit(0);
 }
 
@@ -107,6 +130,7 @@ int start_server_thread()
 {
 	
 	struct sockaddr_in serv_addr;
+	int yes = 1;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&serv_addr, '0', sizeof(serv_addr));
@@ -115,6 +139,7 @@ int start_server_thread()
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(port);
 
+	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 	if(bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1)
 	{
 		printf("[ERROR] Failed to bind to port %d\n", port);
@@ -149,7 +174,10 @@ void agent_thread_init(int connfd)
 	albl.logger = logger;
 	albl.list = list;
 
+	con_ids[counter] = agent;
+	counter+=1;	
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
+
 	printf("thread created\n");
 }
 
