@@ -169,20 +169,23 @@ rssi_t *dequeue(rssi_queue_t *q)
 	if(q->head == NULL) return NULL;
 
 	result = q->head;
-	
+
 	//delete it from the queue
 	q->head = result->next;
-	if(result->next == NULL) q->tail = NULL;
+	if(result->next == NULL) {
+		q->tail = NULL;
+	}
 
 	result->next = NULL;
 	q->size -= 1;
+
 	return result;
 }
 
 void enqueue(rssi_queue_t *q, rssi_t *r)
 {
 	if(q == NULL || r == NULL) return;
-
+	printf("en %d\n", q->size);
 	r->next = NULL;
 	if(q->head == NULL)
 	{
@@ -201,8 +204,10 @@ void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 {
 	if(q == NULL || r == NULL) return;
 
-	if(q->size < q->max) enqueue(q, r);
-
+	if(q->size < q->max){
+		enqueue(q, r);
+		return;
+	}
 	if(q->size >= q->max){
 		free_rssi(dequeue(q));
 		enqueue(q, r);
@@ -361,6 +366,49 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 	list->size+= 1;
 }
 
+
+/***********************print functions*******************************/
+void print_rssi_q(rssi_queue_t *q)
+{
+	rssi_t *curr;
+	if(q == NULL) return;
+	printf("agent: %s\tsize: %d\n", q->mac, q->size);
+	curr = q->head;
+	while(curr!=NULL)
+	{
+		printf("rssi value: %d\n", curr->rssi);
+		curr = curr->next;
+		usleep(5000);
+	}
+}
+
+void print_beacon(beacon_t *b)
+{
+	rssi_queue_t *curr;
+	if( b == NULL ) return;
+	printf("------------------beacon(size: %d)-------------------\nMAC: %s\n\n", b->size, b->mac);
+	curr = b->head;
+	while(curr!=NULL)
+	{
+		print_rssi_q(curr);
+		curr = curr->next;
+	}
+}
+
+void print_blist(blist_t *list)
+{
+	beacon_t *curr;
+	if(list == NULL) return;
+	printf("\n\n===============================================================\nPrinting Beacon List Now(Size:%d)\n", list->size);
+	curr = list->head;
+	while(curr!=NULL)
+	{
+		print_beacon(curr);
+		curr = curr->next;
+	}
+}
+
+
 void store_rssi_from_agent(blist_t *list, char *msg)
 {
 	char *line, *temp;
@@ -382,48 +430,9 @@ void store_rssi_from_agent(blist_t *list, char *msg)
 		rssi_str = temp;
 		temp = strtok(NULL,"|");
 		line = temp;
-		printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
-		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);		
+		//printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
+		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);	
+		print_blist(list);
 	}
 
-}
-
-/***********************print functions*******************************/
-void print_rssi_q(rssi_queue_t *q)
-{
-	rssi_t *curr;
-	if(q == NULL) return;
-	printf("agent: %s\n", q->mac);
-	curr = q->head;
-	while(curr!=NULL)
-	{
-		printf("rssi value: %d\n", curr->rssi);
-		curr = curr->next;
-	}
-}
-
-void print_beacon(beacon_t *b)
-{
-	rssi_queue_t *curr;
-	if( b == NULL ) return;
-	printf("------------------beacon-------------------\nMAC: %s\n\n", b->mac);
-	curr = b->head;
-	while(curr!=NULL)
-	{
-		print_rssi_q(curr);
-		curr = curr->next;
-	}
-}
-
-void print_blist(blist_t *list)
-{
-	beacon_t *curr;
-	if(list == NULL) return;
-	printf("\n\n===============================================================\nPrinting Beacon List Now(Size:%d)\n", list->size);
-	curr = list->head;
-	while(curr!=NULL)
-	{
-		print_beacon(curr);
-		curr = curr->next;
-	}
 }
