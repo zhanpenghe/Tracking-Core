@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "position.h"
+#include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
 #include "headers/server.h"
 #include "headers/agentInfo.h"
 
@@ -23,8 +23,8 @@ int listenfd = 0; //file descriptors
 int port = 9999;	//default port
 logger_t *logger;
 
-agent_t *agent_connections[20];	//need to be change..todo
-int counter = 0;
+agent_list_t *agent_list;
+
 int agent_num = 0;
 
 pos_calc_t *info_for_calculation;
@@ -56,6 +56,9 @@ int main(int argc, char **argv)
 
     logger = (logger_t*) malloc(sizeof(logger_t));
     init_logger(logger, 'w', "log.txt");
+
+    agent_list = (agent_list_t *)malloc(sizeof(agent_list_t));
+    init_agent_list(agent_list);
 
     list = (blist_t *) malloc(sizeof(blist_t));
     init_blist(list, 10);
@@ -115,17 +118,8 @@ void SIGINT_Handler(int sig)
 	//lock everything to prevent I/O's from other threads..
 	pthread_mutex_lock(&logger->lock);
 	pthread_mutex_lock(&list->lock);
-	
-	int i = 0;
-	for(;i<counter; i++)
-	{
-		printf("%d\n", i);
-		close(agent_connections[i]->con_fd);
-		pthread_cancel(*agent_connections[i]->tid);
 
-		free(agent_connections[i]->tid);
-		free(agent_connections[i]);
-	}
+	free_agent_list(agent_list);
 
 	shutdown(listenfd, SHUT_RDWR);
 	close(listenfd);
@@ -204,9 +198,8 @@ void agent_thread_init(int connfd)
 	albl.agent = agent;
 	albl.logger = logger;
 	albl.list = list;
+	albl.agent_list = agent_list;
 
-	agent_connections[counter] = agent;
-	counter+=1;	
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
 
 	printf("thread created\n");

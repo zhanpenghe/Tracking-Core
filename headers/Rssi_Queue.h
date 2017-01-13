@@ -146,7 +146,7 @@ void init_blist(blist_t *list, int q_max)
 
 	if(pthread_mutex_init(&list->lock, NULL) != 0)
 	{
-		printf("\nBlist mutex init failed\n");
+		printf("[ERROR] Blist mutex init failed\n");
 		exit(1);
 	}
 }
@@ -367,7 +367,6 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 	list->size+= 1;
 }
 
-
 /***********************print functions*******************************/
 void print_rssi_q(rssi_queue_t *q)
 {
@@ -408,7 +407,6 @@ void print_blist(blist_t *list)
 		curr = curr->next;
 	}
 }
-
 
 void store_rssi_from_agent(blist_t *list, char *msg)
 {

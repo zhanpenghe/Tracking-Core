@@ -15,14 +15,22 @@ typedef struct agentAndLogger
 	logger_t *logger;
 }agent_and_logger_t;
 
+typedef struct agent_list
+{
+	agent_t *head;
+	agent_t *tail;
+	int size;
+	pthread_mutex_t lock;
+}agent_list_t;
+
 //agent, Logger, Blist
 typedef struct ALBL
 {
 	agent_t *agent;
 	logger_t *logger;
 	blist_t *list;
+	agent_list_t *agent_list;
 }agent_logger_blist_t;
-
 
 void setAgent(agent_t* agent, int con_fd, agent_t* next)
 {
@@ -30,6 +38,127 @@ void setAgent(agent_t* agent, int con_fd, agent_t* next)
 	agent->con_fd = con_fd;
 	agent->next = next;
 	agent->tid = NULL;
+}
+
+void free_agent(agent_t *agent)
+{
+	if(agent == NULL) return;
+
+	if(agent->tid != NULL) free(agent->tid);
+	free(agent);
+}
+
+void init_agent_list(agent_list_t *list)
+{
+	if(list == NULL) return;
+	list->head = NULL;
+	list->tail = NULL;
+	list->size = 0;
+	if(pthread_mutex_init(&list->lock, NULL) != 0)
+	{
+		printf("[ERROR] Agent list mutex init failed\n");
+		exit(1);
+	}
+}
+
+void free_agent_list(agent_list_t *list)
+{
+	agent_t *curr, *next;
+	int i =0;
+	if(list == NULL) return;
+
+	curr = list->head;
+	while(curr != NULL){
+		next = curr->next;
+		close(curr->con_fd);
+		pthread_cancel(*curr->tid);
+		free_agent(curr);
+		curr = next;
+		printf("%d\n", i);
+		i++;
+	}
+	free(list);
+}
+
+void print_ag_list(agent_list_t *list)
+{
+	agent_t *curr;
+	int i =0;
+	if(list == NULL) return;
+
+	curr = list->head;
+	while(curr != NULL){
+		printf("%d %d\n", i, curr->con_fd);
+		curr = curr->next;
+		i++;
+		sleep(1);
+	}
+}
+
+void add_new_agent_connection(agent_list_t *list, agent_t *agent)
+{
+	if(list == NULL || agent == NULL) return;
+
+	pthread_mutex_lock(&list->lock);
+
+	agent->next = NULL;
+	if(list->head == NULL)
+	{
+		list->head = agent;
+		list->tail = agent;
+		list->size = 1;
+		pthread_mutex_unlock(&list->lock);
+		return;
+	}
+
+	list->tail->next = agent;
+	list->tail = agent;
+	list->size+=1;
+	pthread_mutex_unlock(&list->lock);
+
+}
+
+void remove_agent_connection(agent_list_t *list, agent_t *agent)
+{
+	agent_t *curr, *next, *prev = NULL;
+	if(list == NULL || agent == NULL) return;
+
+	curr = list->head;
+	while(curr != NULL){
+		next = curr->next;
+
+		if(curr == agent)
+		{
+			printf("found\n");
+			if(curr == list->head)
+			{
+				printf("head\n");
+				//remove the head
+				list->head = list->head->next;
+				list->size -= 1;
+			}
+			else if(curr == list->tail)
+			{
+				printf("tail\n");
+
+				prev->next = NULL;
+				list->size -= 1;
+				list->tail = prev;
+			}
+			else if(prev != NULL)
+			{
+				printf("middle\n");
+				prev->next = curr->next;
+				list->size -= 1;
+			}else{
+				printf("WIERD THING HAPPENED WHEN REMOVING AN AGENT CONNECTION\n");
+			}
+			free_agent(curr);
+			return;
+		}
+		prev = curr;
+		curr = next;
+	}
 }
 
 //only print out the measurement to console
@@ -96,11 +225,15 @@ void* log_and_storeRSSIFromAgent(void *arg)
 	agent_t *agent = ((agent_logger_blist_t *) arg)->agent;
 	logger_t *logger = ((agent_logger_blist_t *) arg)->logger;
 	blist_t *list = ((agent_logger_blist_t *) arg)->list;
+	agent_list_t *agent_list = ((agent_logger_blist_t *) arg)->agent_list;
+
 	pthread_t temp = pthread_self();
 
 	//set the thread id first;
 	agent->tid = malloc(sizeof(pthread_t));
 	memcpy(agent->tid, &temp, sizeof(pthread_t));
+
+	add_new_agent_connection(agent_list, agent);
 
 	memset(buf, '0', sizeof(buf));
 
@@ -118,5 +251,7 @@ void* log_and_storeRSSIFromAgent(void *arg)
 		write(agent->con_fd, ret, 2);
 	}
 
+	printf("[INFO] An agent was disconnected... Now delete it from the list. \n");
+	remove_agent_connection(agent_list, agent);
 }
 
