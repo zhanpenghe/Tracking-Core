@@ -1,5 +1,4 @@
-
-#include "headers/Rssi_Queue.h"
+#include "agentHandler.h"
 
 //store all info that is needed to calculate postions
 typedef struct pos_calc
@@ -20,6 +19,19 @@ void calc_all_beacon_pos(blist_t *list, int agent_num)
 	while(curr != NULL)
 	{
 		//calc position here
+		if(curr->size >= 3){
+			get_rssi_for_calc(curr, rssi_pairs, agent_num);
+			printf("\nCurrent beacon:\n");
+			print_beacon(curr);
+			printf("Data get from beacon:\n");
+			for(i=0; i<agent_num; i++)
+			{
+				if(rssi_pairs[i].rssi == 0) continue;
+				printf("%s: %d\n", rssi_pairs[i].mac, rssi_pairs[i].rssi);
+			}
+		}else{
+			printf("Too less info for position calculation. (%s, %d)\n", curr->mac, curr->size);
+		}
 		curr = curr->next;
 	}
 	printf("[INFO] Done with calculation. Unlocking blist.\n");
@@ -27,7 +39,7 @@ void calc_all_beacon_pos(blist_t *list, int agent_num)
 
 }
 
-void pos_generation(void *arg)
+void *pos_generation(void *arg)
 {
 	pos_calc_t *info;
 	blist_t *list;
@@ -36,14 +48,16 @@ void pos_generation(void *arg)
 
 	if(arg == NULL){
 		printf("[ERROR] NULL BLIST!!!\n");
-		return;
+		return NULL;
 	}
 
 	info = (pos_calc_t *)arg;
 	list = info->list;
+	agent_num = info->agent_num;
 
 	while(1)
 	{
+		sleep(1);
 		calc_all_beacon_pos(list, agent_num);
 	}
 }

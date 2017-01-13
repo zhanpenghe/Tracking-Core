@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "agentHandler.h"
+#include "position.h"
 #include "headers/server.h"
 #include "headers/agentInfo.h"
 
@@ -26,6 +26,8 @@ logger_t *logger;
 agent_t *agent_connections[20];	//need to be change..todo
 int counter = 0;
 int agent_num = 0;
+
+pos_calc_t *info_for_calculation;
 
 blist_t *list;	// blist.. holds all the information
 
@@ -61,6 +63,8 @@ int main(int argc, char **argv)
     printf("[INFO] Successfully created logger\n");
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
+
+	start_calculation_thread();
 
 	while(1)
 	{
@@ -125,13 +129,16 @@ void SIGINT_Handler(int sig)
 
 	shutdown(listenfd, SHUT_RDWR);
 	close(listenfd);
-
+	printf("[INFO] All sockets were shut down.\n");
 	pthread_mutex_unlock(&logger->lock);
 	pthread_mutex_unlock(&list->lock);
 
-	free_logger(logger);	
+	free(info_for_calculation);
+	free_logger(logger);
+	printf("[INFO] Logger is freed.\n");
 	print_blist(list);
 	free_blist(list);
+	printf("[INFO] Blist is freed.\n");
 	exit(0);
 }
 
@@ -162,6 +169,21 @@ int start_server_thread()
 	}
 
 	return listenfd;
+}
+
+void start_calculation_thread()
+{
+	pthread_t tid;
+
+	printf("[INFO] Total # of agents is %d.\n",agent_num);
+
+	info_for_calculation = (pos_calc_t *) malloc(sizeof(pos_calc_t));
+	info_for_calculation->list = list;
+	info_for_calculation->agent_num = agent_num;
+
+	pthread_create(&tid, NULL, pos_generation, (void*)info_for_calculation);
+
+	printf("[INFO] Calcultion thread started\n");
 }
 
 void agent_thread_init(int connfd)

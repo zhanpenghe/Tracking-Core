@@ -5,6 +5,8 @@
 
 int start_server_thread();
 
+void start_calculation_thread();
+
 void agent_thread_init(int connfd);
 
 static void usage();
@@ -12,3 +14,4 @@ static void usage();
 void load_commandline_arg(int argc, char** argv);
 
 void SIGINT_Handler(int sig);
+

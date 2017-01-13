@@ -143,6 +143,12 @@ void init_blist(blist_t *list, int q_max)
 	list->head = NULL;
 	list->tail = NULL;
 	list->size = 0;
+
+	if(pthread_mutex_init(&list->lock, NULL) != 0)
+	{
+		printf("\nBlist mutex init failed\n");
+		exit(1);
+	}
 }
 
 void free_blist(blist_t *list)
@@ -216,7 +222,7 @@ void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 
 void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 {
-	int8_t result = 0;
+	int result = 0;
 	rssi_t *curr;
 	if(pair == NULL) return;
 
@@ -255,8 +261,33 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 		curr = curr->next;
 	}
 
-	pair->rssi = (result/q->size);
+	pair->rssi = (int8_t)(result/q->size);
 }
+
+void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
+{
+	int i = 0;
+	rssi_queue_t *curr;
+
+	if(b == NULL){
+		memset(pairs, 0, sizeof(rssi_pair_t)*agent_num);
+		return;
+	}
+
+	curr = b->head;
+	while(curr != NULL)
+	{
+		get_rssi_from_q(curr, &pairs[i]);
+		curr = curr->next;
+		i++;
+	}
+
+	if(i != b->size) printf("ERROR WHEN GETTING RSSI FROM BLIST!!!!!!\n");
+
+	if(b->size < agent_num)
+		memset(&pairs[b->size], 0, sizeof(rssi_pair_t)*(agent_num - b->size));
+}
+
 
 void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac, int q_max)
 {
@@ -298,37 +329,7 @@ void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac, int q_max)
 	b->tail = temp;
 	b->size+=1;
 }
-/*
-int is_ready(beacon_t *b, int agent_num)
-{
-	rssi_queue_t *curr;
-	if(b == NULL) return 0;
 
-	if(b->size < agent_num) return 0;
-
-	curr = b->head;
-	while(curr!=NULL)
-	{
-		if(curr->head == NULL) return 0;
-	}
-
-	return 1;
-}
-
-void get_rssi_for_calc(beacon_t *b, rssi_pair_t output[])
-{
-	rssi_queue_t *q;
-	if(b == NULL) return;
-
-	q = b->head;
-	while(q!=NULL)
-	{
-
-		q = q->next;
-	}
-
-}
-*/
 void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *beacon_mac)
 {
 	beacon_t *temp;
@@ -399,7 +400,7 @@ void print_blist(blist_t *list)
 {
 	beacon_t *curr;
 	if(list == NULL) return;
-	printf("\n\n===============================================================\nPrinting Beacon List Now(Size:%d)\n", list->size);
+	printf("\n===============================================================\nPrinting Beacon List Now(Size:%d)\n", list->size);
 	curr = list->head;
 	while(curr!=NULL)
 	{
@@ -431,8 +432,14 @@ void store_rssi_from_agent(blist_t *list, char *msg)
 		temp = strtok(NULL,"|");
 		line = temp;
 		//printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
+		pthread_mutex_lock(&list->lock);
+		printf("[INFO] Adding rssi to list\n");
 		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);	
 		print_blist(list);
+
+		pthread_mutex_unlock(&list->lock);
+		printf("[INFO] Done with adding rssi to list\n");
+
 	}
 
 }

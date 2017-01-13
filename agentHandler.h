@@ -109,14 +109,11 @@ void* log_and_storeRSSIFromAgent(void *arg)
 		buf[len] = 0;
 		//this need to be changed later.... todo
 		pthread_mutex_lock(&logger->lock);
-		pthread_mutex_lock(&list->lock);
-
 		log_to_file(logger, buf, len);
 		log_to_file(logger, "\n", 1);
-		store_rssi_from_agent(list, buf);
-
 		pthread_mutex_unlock(&logger->lock);
-		pthread_mutex_unlock(&list->lock);
+
+		store_rssi_from_agent(list, buf);
 
 		write(agent->con_fd, ret, 2);
 	}
