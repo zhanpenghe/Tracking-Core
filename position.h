@@ -7,6 +7,78 @@ typedef struct pos_calc
 	int agent_num;	//total number of agents... from config.h
 }pos_calc_t;
 
+
+int get_room_num_from_mac(agent_info_t infos[], char *mac, int agent_num)
+{
+	int i = 0;
+
+	while(i < agent_num)
+	{
+		if(strcmp(infos[i].mac, mac) == 0)
+		{
+			return infos[i].room_id;
+		}
+	}
+	//just exit the program if there is something wrong
+	printf("[ERROR] Cannot find the agent info(%s) from configs. Something wrong..\n");
+	raise(SIGINT);
+	return -1;
+}
+
+
+int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num)
+{
+	int i;
+	int max_index, second_max_index, third_max_index;
+	int roomid1, roomid2, roomid3;
+	if(agent_num < 3) return -1;
+
+	//sort the first 3..
+	max_index = pairs[0].rssi < pairs[1].rssi ? 0 :1;
+	second_max_index = max_index == 0? 1: 0;
+	if(pairs[2].rssi > pairs[second_max_index].rssi)
+	{
+		third_max_index = 2;
+	}else if(pairs[2].rssi > pairs[max_index].rssi)
+	{
+		third_max_index = second_max_index;
+		second_max_index = 2;
+	}else{
+		third_max_index = second_max_index;
+		second_max_index = max_index;
+		max_index = 2;
+	}
+	i = 3;
+	while(i<agent_num)
+	{
+		if(pairs[i].rssi < pairs[max_index].rssi)
+		{
+			third_max_index = second_max_index;
+			second_max_index = max_index;
+			max_index = i;
+		}else if(pairs[i] < pairs[second_max_index].rssi)
+		{
+			third_max_index = second_max_index;
+			second_max_index = i;
+		}else if(pairs[i] < pairs[third_max_index].rssi)
+		{
+			third_max_index = i;
+		}
+		i++;
+	}
+
+	roomid1 = get_room_num_from_mac(infos, pairs[max_index].mac, agent_num);
+	roomid2 = get_room_num_from_mac(infos, pairs[second_max_index].mac, agent_num);
+	roomid3 = get_room_num_from_mac(infos, pairs[third_max_index].mac, agent_num);
+
+	if(roomid1 == roomid2) return roomid1;
+	if(roomid1 == roomid3) return roomid1;
+	if(roomid2 == roomid3) return roomid3;
+
+	return -1;
+}
+
+
 void calc_all_beacon_pos(blist_t *list, int agent_num)
 {
 	int8_t i = 0;
