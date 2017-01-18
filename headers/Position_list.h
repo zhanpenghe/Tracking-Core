@@ -182,6 +182,19 @@ void add_pos_to_list(pos_list_t *list, int x, int y, char *mac, int room)
 
 void get_pos_by_mac(pos_list_t *list, char *mac)
 {
+	b_pos_t *curr;
+	if(list == NULL) return;
+
+	curr = list->head;
+
+	while(curr!=NULL)
+	{
+		if(strcmp(mac, curr->mac) == 0)
+		{
+			//found....
+		}
+		curr = curr->next;
+	}
 
 }
 

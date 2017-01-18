@@ -1,6 +1,5 @@
 #include "agentHandler.h"
-#include "headers/agentInfo.h"
-
+#include "algorithms/calc.h"
 
 //store all info that is needed to calculate postions
 typedef struct pos_calc
@@ -10,17 +9,28 @@ typedef struct pos_calc
 	agent_info_t *infos;
 }pos_calc_t;
 
-
-int get_room_num_from_mac(agent_info_t infos[], char *mac, int agent_num)
+int get_info_from_room(agent_info_t infos[], int room,int agent_num, int found1, int found2)
 {
 	int i = 0;
 
 	while(i < agent_num)
 	{
-		if(strcmp(infos[i].mac, mac) == 0)
-		{
-			return infos[i].room_id;
-		}
+		if(infos[i].room_id == room && i != found1 && i != found2) return i;
+		i++;
+	}
+	//just exit the program if there is something wrong
+	printf("[ERROR] Cannot find the agent info(room: %d with found:[%s, %s]) from configs. Something wrong..\n", room,infos[found1].mac, infos[found2].mac);
+	raise(SIGINT);
+	return -1;
+}
+
+int get_info_from_mac(agent_info_t infos[], char *mac, int agent_num)
+{
+	int i = 0;
+
+	while(i < agent_num)
+	{
+		if(strcmp(infos[i].mac, mac) == 0) return i;
 		i++;
 	}
 	//just exit the program if there is something wrong
@@ -29,19 +39,18 @@ int get_room_num_from_mac(agent_info_t infos[], char *mac, int agent_num)
 	return -1;
 }
 
-
-int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num)
+//this function is very sloppy because of the data structure.. need some hashmap implementation to improve the whole thing...
+int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_prep_t *prep)
 {
 	int i;
 	int max_index, second_max_index, third_max_index;
-	int roomid1, roomid2, roomid3;
+	int info1, info2, info3;
 	if(agent_num < 3) return -1;
 
 	//sort the first 3..
 	max_index = pairs[0].rssi > pairs[1].rssi ? 0 :1;
 	second_max_index = max_index == 0? 1: 0;
-	if(pairs[2].rssi > pairs[second_max_index].rssi)
-	{
+	if(pairs[2].rssi > pairs[second_max_index].rssi){
 		third_max_index = 2;
 	}else if(pairs[2].rssi > pairs[max_index].rssi)
 	{
@@ -53,7 +62,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num)
 		max_index = 2;
 	}
 	i = 3;
-	printf("iasdui\n");
+
 	while(i<agent_num)
 	{
 		if(pairs[i].rssi >= 0){
@@ -76,17 +85,64 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num)
 		i++;
 	}
 	printf("%s..%s...%s\n", pairs[max_index].mac, pairs[second_max_index].mac, pairs[third_max_index].mac);
-	roomid1 = get_room_num_from_mac(infos, pairs[max_index].mac, agent_num);
-	roomid2 = get_room_num_from_mac(infos, pairs[second_max_index].mac, agent_num);
-	roomid3 = get_room_num_from_mac(infos, pairs[third_max_index].mac, agent_num);
-	printf("%d..%d...%d\n", roomid1, roomid2, roomid3);
-	if(roomid1 == roomid2) return roomid1;
-	if(roomid1 == roomid3) return roomid1;
-	if(roomid2 == roomid3) return roomid3;
+	info1 = get_info_from_mac(infos, pairs[max_index].mac, agent_num);
+	info2 = get_info_from_mac(infos, pairs[second_max_index].mac, agent_num);
+	info3 = get_info_from_mac(infos, pairs[third_max_index].mac, agent_num);
 
+	// fill all the information needed to compute the position
+	if(infos[info1].room_id == infos[info2].room_id){
+		prep->room = infos[info1].room_id;
+		prep->info_indexes[0] = info1;
+		prep->info_indexes[1] = info2;
+		prep->rssi[0] = pairs[max_index].rssi;
+		prep->rssi[1] = pairs[second_max_index].rssi;
+
+		prep->info_indexes[2] = get_info_from_room(infos, prep->room, agent_num,  info1, info2);
+		i = 0;
+		for(;i<agent_num; i++){
+			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
+				prep->rssi[2] = i;
+				return prep->room;
+			}
+		}
+		return -1;
+	}
+	if(infos[info1].room_id == infos[info3].room_id){
+		prep->room = infos[info1].room_id;
+		prep->info_indexes[0] = info1;
+		prep->info_indexes[1] = info3;
+		prep->rssi[0] = pairs[max_index].rssi;
+		prep->rssi[1] = pairs[third_max_index].rssi;
+
+		prep->info_indexes[2] = get_info_from_room(infos, prep->room, agent_num, info1, info3);
+		i = 0;
+		for(;i<agent_num; i++){
+			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
+				prep->rssi[2] = i;
+				return prep->room;
+			}
+		}
+		return -1;
+	}
+	if(infos[info2].room_id == infos[info3].room_id){
+		prep->room = infos[info1].room_id;
+		prep->info_indexes[0] = info2;
+		prep->info_indexes[1] = info3;
+		prep->rssi[0] = pairs[second_max_index].rssi;
+		prep->rssi[1] = pairs[third_max_index].rssi;
+
+		prep->info_indexes[2] = get_info_from_room(infos, prep->room, agent_num, info2, info3);
+		i = 0;
+		for(;i<agent_num; i++){
+			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
+				prep->rssi[2] = i;
+				return prep->room;
+			}
+		}
+		return -1;
+	}
 	return -1;
 }
-
 
 void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
 {
@@ -94,6 +150,9 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
 	int8_t room = -1, last_room = -1;
 	beacon_t *curr;
 	rssi_pair_t rssi_pairs[agent_num];
+
+	calc_prep_t prep;
+	prep.infos = infos;
 
 	pthread_mutex_lock(&list->lock);
 	printf("[INFO] Calcluating position. The blist is locked here.\n");
@@ -111,8 +170,9 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
 				if(rssi_pairs[i].rssi == 0) continue;
 				printf("%s: %d\n", rssi_pairs[i].mac, rssi_pairs[i].rssi);
 			}
-			room = get_room_num(rssi_pairs, infos, agent_num);
-			printf("In room: %d\n", room);
+			room = get_room_num(rssi_pairs, infos, agent_num, &prep);
+			if(room == -1) printf("SOMETHING WRONG WITH ROOM CALC\n");
+			else print_prep(&prep);
 		}else{
 			printf("Too less info for position calculation. (%s, %d)\n", curr->mac, curr->size);
 		}
