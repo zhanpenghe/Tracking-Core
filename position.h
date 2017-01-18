@@ -91,7 +91,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num)
 void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
 {
 	int8_t i = 0;
-	int8_t room = -1;
+	int8_t room = -1, last_room = -1;
 	beacon_t *curr;
 	rssi_pair_t rssi_pairs[agent_num];
 
