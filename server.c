@@ -17,7 +17,6 @@
 
 #include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
 #include "headers/server.h"
-#include "headers/agentInfo.h"
 
 int listenfd = 0; //file descriptors
 int port = 9999;	//default port
@@ -50,8 +49,8 @@ int main(int argc, char **argv)
 
 	//install a signal handler here
 	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
-			printf("SIGINT install error\n");
-			exit(1);
+		printf("SIGINT install error\n");
+		exit(1);
     }
 
     logger = (logger_t*) malloc(sizeof(logger_t));
@@ -67,7 +66,7 @@ int main(int argc, char **argv)
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
-	start_calculation_thread();
+	start_calculation_thread(infos);
 
 	while(1)
 	{
@@ -165,7 +164,7 @@ int start_server_thread()
 	return listenfd;
 }
 
-void start_calculation_thread()
+void start_calculation_thread(agent_info_t infos[])
 {
 	pthread_t tid;
 
@@ -174,6 +173,7 @@ void start_calculation_thread()
 	info_for_calculation = (pos_calc_t *) malloc(sizeof(pos_calc_t));
 	info_for_calculation->list = list;
 	info_for_calculation->agent_num = agent_num;
+	info_for_calculation->infos = infos;
 
 	pthread_create(&tid, NULL, pos_generation, (void*)info_for_calculation);
 
@@ -195,10 +195,10 @@ void agent_thread_init(int connfd)
 	setAgent(agent, connfd, NULL);
 
 	agent_logger_blist_t albl;
-	albl.agent = agent;
-	albl.logger = logger;
-	albl.list = list;
-	albl.agent_list = agent_list;
+	albl.agent = agent;	//agent thread
+	albl.logger = logger;	//logger for I/O
+	albl.list = list;	//blist
+	albl.agent_list = agent_list; //all the agent threads
 
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
 

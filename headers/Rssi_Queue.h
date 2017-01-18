@@ -223,6 +223,7 @@ void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 {
 	int result = 0;
+	float MA = 0.2;
 	rssi_t *curr;
 	if(pair == NULL) return;
 
@@ -244,7 +245,7 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 		result = q->head->rssi;
 		while(curr!=NULL)
 		{
-			if(curr->rssi < result)
+			if(curr->rssi > result)
 			{
 				result = curr->rssi;
 			}
@@ -254,14 +255,27 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 		pair->rssi = result;
 		return;
 	}
-
-	while(curr!=NULL)
+	
+	result = q->head->rssi;
+	while(curr!=q->head)
 	{
-		result += curr->rssi;
+		if(curr->rssi >result )
+		{
+			result = curr->rssi;
+		}
 		curr = curr->next;
 	}
 
-	pair->rssi = (int8_t)(result/q->size);
+	pair->rssi = (int)(MA*((float)curr->rssi) + (1-MA)*((float)result));
+
+	/*while(curr!=q->head)
+	{
+		avg += (1-MA)/(q->max-1)*(float)curr->rssi;
+		curr = curr->next;
+	}
+
+	avg = (0.2)*((float)curr->rssi);
+	pair->rssi = (int) avg;*/
 }
 
 void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
