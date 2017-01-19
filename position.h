@@ -101,7 +101,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 		i = 0;
 		for(;i<agent_num; i++){
 			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
-				prep->rssi[2] = i;
+				prep->rssi[2] = pairs[i].rssi;
 				return prep->room;
 			}
 		}
@@ -118,7 +118,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 		i = 0;
 		for(;i<agent_num; i++){
 			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
-				prep->rssi[2] = i;
+				prep->rssi[2] = pairs[i].rssi;
 				return prep->room;
 			}
 		}
@@ -135,7 +135,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 		i = 0;
 		for(;i<agent_num; i++){
 			if(strcmp(pairs[i].mac, infos[prep->info_indexes[2]].mac)==0){
-				prep->rssi[2] = i;
+				prep->rssi[2] = pairs[i].rssi;
 				return prep->room;
 			}
 		}

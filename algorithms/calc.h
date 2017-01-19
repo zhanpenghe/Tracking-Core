@@ -14,7 +14,7 @@ void print_prep(calc_prep_t *p)
 	int i = 0;
 	if(p == NULL) return;
 
-	printf("Printing prep:\n Room: %d\n.", p->room);
+	printf("Printing prep:\nRoom: %d.\n", p->room);
 	while(i<3)
 	{
 		printf("mac: %s\trssi: %d\n", p->infos[p->info_indexes[i]].mac, p->rssi[i]);
