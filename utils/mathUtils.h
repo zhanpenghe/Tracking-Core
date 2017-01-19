@@ -19,26 +19,64 @@ typedef struct point
 	float y;
 }point_t;
 
+void set_point(point_t *p, float x, float y)
+{
+	if(p == NULL) return;
+	p->x = x;
+	p->y = y;
+}
+
 float get_distance(point_t *p1, point_t *p2)
 {
-	if(p1 == NULL || p2 == NULL) return 1;// change to signal later... something wrong...
+	if(p1 == NULL || p2 == NULL) return NAN;// change to signal later... something wrong...
 
 	return sqrt(pow((p1->x - p2->x), 2) + pow((p1->y - p2->y), 2));
 }
 
 float get_slope(point_t *p1, point_t *p2)
 {
-	if(p1 == NULL || p2 == NULL) return 1;// change to signal later... something wrong...
+	if(p1 == NULL || p2 == NULL) return NAN;// change to signal later... something wrong...
 
 	return (p2->y - p1->y)/(p2->x - p1->x);
 }
 
-void get_line(point_t *p1, point_t *p2, line_t *line)
+void get_line_by_points(point_t *p1, point_t *p2, line_t *line)
 {
 	if(p1 == NULL || p2 == NULL || line == NULL) return;
 
 	line->slope = (p2->y - p1->y)/(p2->x - p1->x);
 	line->y_int = (p1->y - line->slope*p1->x);
+}
+
+void get_line_by_slope_point(point_t *p, float slope, line_t *line)
+{
+	if(p == NULL || line == NULL) return;
+
+	line->slope = slope;
+	line->y_int = (p->y - line->slope * p->x);
+}
+
+void find_interception(line_t *l1, line_t *l2, point_t *p)
+{
+	if(l1 == NULL || l2 == NULL || p==NULL) return;
+	if(l1->slope == l2->slope) return;
+
+	p->x = (l1->y_int - l2->y_int)/(l2->slope - l1->slope);
+	p->y = (l2->slope*l1->y_int - l1->slope*l2->y_int)/(l2->slope-l1->slope);
+}
+
+float get_perpendicular_slope_of_line(line_t *l)
+{
+	if(l == NULL) return NAN;
+
+	return (-1.0)/l->slope;
+}
+
+float get_perpendicular_slope(float slope)
+{
+	if(slope == 0) return NAN;
+
+	return (-1.0)/slope;
 }
 
 void get_point_by_ratio(point_t *p1, point_t *p2, point_t *target, float d1, float d2)
@@ -52,11 +90,8 @@ void get_point_by_ratio(point_t *p1, point_t *p2, point_t *target, float d1, flo
 	target->y = r2*p1->y+r1*p2->y;
 }
 
-void find_interception(line_t *l1, line_t *l2, point_t *p)
+float rssi_to_distance(int rssi, float PA, float PN)
 {
-	if(l1 == NULL || l2 == NULL || p==NULL) return;
-	if(l1->slope == l2->slope) return;
-
-	p->x = (l1->y_int - l2->y_int)/(l2->slope - l1->slope);
-	p->y = (l2->slope*l1->y_int - l1->slope*l2->y_int)/(l2->slope-l1->slope);
+	return pow(10, (PA-(float)rssi)/(10.0*PN));
 }
+

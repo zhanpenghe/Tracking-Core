@@ -22,6 +22,7 @@ typedef struct b_pos{
 typedef struct pos_list{
 	b_pos_t *head;
 	b_pos_t *tail;
+	pthread_mutex_t lock;
 	int size;
 }pos_list_t;
 
@@ -86,6 +87,11 @@ void init_pos_list(pos_list_t *list)
 	list->head = NULL;
 	list->tail = NULL;
 	list->size = 0;
+	if(pthread_mutex_init(&list->lock, NULL) != 0)
+	{
+		printf("[ERROR] POS_LIST mutex lock init failed\n");
+		exit(1);
+	}
 }
 
 void free_pos_list(pos_list_t *list)
