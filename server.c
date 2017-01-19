@@ -21,6 +21,7 @@
 int listenfd = 0; //file descriptors
 int port = 9999;	//default port
 int agent_num = 0;
+int room_num = 0;
 
 //Loggers for I/O
 logger_t *logger;
@@ -40,13 +41,21 @@ int main(int argc, char **argv)
 	load_commandline_arg(argc, argv);
 
 	//get agent information from list_agent.txt
-	param_slist_t *agent_infos = (param_slist_t*) malloc(sizeof(param_slist_t));
-	agent_num = get_agent_count(agent_infos);
+	param_slist_t *agent_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
+	agent_num = get_agent_count(agent_infos_p);
 
-	agent_info_t infos[agent_num];		//to be used later in calculation
+	agent_info_t agent_infos[agent_num];		//to be used later in calculation
 
-	load_agent_infos(infos, agent_infos);
-	free_param_slist(agent_infos);
+	load_agent_infos(agent_infos, agent_infos_p);
+	free_param_slist(agent_infos_p);
+
+	param_slist_t *room_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
+	room_num = get_room_count(room_infos_p);
+
+	room_info_t room_infos[room_num];		//to be used later in calculation
+
+	load_room_infos(room_infos, room_infos_p);
+	free_param_slist(room_infos_p);
 
 	//install a signal handler here
 	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
@@ -71,7 +80,7 @@ int main(int argc, char **argv)
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
-	start_calculation_thread(infos);
+	start_calculation_thread(agent_infos, room_infos);
 
 	while(1)
 	{
@@ -169,7 +178,7 @@ int start_server_thread()
 	return listenfd;
 }
 
-void start_calculation_thread(agent_info_t infos[])
+void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 {
 	pthread_t tid;
 
@@ -179,6 +188,7 @@ void start_calculation_thread(agent_info_t infos[])
 	info_for_calculation->list = list;
 	info_for_calculation->agent_num = agent_num;
 	info_for_calculation->infos = infos;
+	info_for_calculation->room_infos = room_infos;
 
 	pthread_create(&tid, NULL, pos_generation, (void*)info_for_calculation);
 

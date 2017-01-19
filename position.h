@@ -6,6 +6,7 @@ typedef struct pos_calc
 {
 	blist_t *list;
 	int agent_num;	//total number of agents... from config.h
+	room_info_t *room_infos;
 	agent_info_t *infos;
 	pos_list_t *pos_list;
 }pos_calc_t;
@@ -145,7 +146,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 	return -1;
 }
 
-void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
+void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], room_info_t room_infos[])
 {
 	int8_t i = 0;
 	int8_t room = -1, last_room = -1;
@@ -154,7 +155,7 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[])
 
 	calc_prep_t prep;
 	prep.infos = infos;
-
+	
 	pthread_mutex_lock(&list->lock);
 	printf("[INFO] Calcluating position. The blist is locked here.\n");
 	curr = list->head;
@@ -189,6 +190,7 @@ void *pos_generation(void *arg)
 	pos_calc_t *info;
 	blist_t *list;
 	agent_info_t *infos;
+	room_info_t *room_infos;
 
 	int agent_num = 0;
 
@@ -198,13 +200,15 @@ void *pos_generation(void *arg)
 	}
 
 	info = (pos_calc_t *)arg;
+
 	list = info->list;
 	agent_num = info->agent_num;
 	infos = info->infos;
+	room_infos = info->room_infos;
 
 	while(1)
 	{
 		sleep(1);
-		calc_all_beacon_pos(list, agent_num, infos);
+		calc_all_beacon_pos(list, agent_num, infos, room_infos);
 	}
 }

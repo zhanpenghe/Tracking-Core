@@ -38,7 +38,7 @@ void bound(pos_t *pos)
 		if(pos->loc.x < 1167) pos->loc.x = 1167;
 		if(pos->loc.x > 2175) pos->loc.x = 2175;
 		if(pos->loc.y < 385) pos->loc.y = 385;
-		if(pos->loc.y>845) pos->loc.y = 845
+		if(pos->loc.y>845) pos->loc.y = 845;
 	}
 	
 	pos->loc.x -= 50;
@@ -52,7 +52,7 @@ void zone_adjust(pos_t *pos)
 		if(pos->loc.x <= 370 && pos->loc.y <= 220){
 			pos->loc.x = 200;
 			pos->loc.y = 160;
-		}else if(pos->loc.x <= 370 and pos->loc.y >= 220){
+		}else if(pos->loc.x <= 370 && pos->loc.y >= 220){
 			pos->loc.x = 200;
 			pos->loc.y = 260;
 		}else if(pos->loc.x > 350){
@@ -93,7 +93,7 @@ void zone_adjust(pos_t *pos)
 		if(pos->loc.x <= 1950 && pos->loc.y <= 630){
 			pos->loc.x = 1760;
 			pos->loc.y = 490;
-		}else if(pos->loc.x > 1950 and pos->loc.y >= 630){
+		}else if(pos->loc.x > 1950 && pos->loc.y >= 630){
 			pos->loc.x = 2000;
 			pos->loc.y = 490;
 		}else if(pos->loc.x <= 1950 && pos->loc.y > 630){
@@ -113,9 +113,3 @@ void adjust(pos_t *pos, float a, float b, float c, float d)
 	pos->loc.x = a*pos->loc.x+b;
 	pos->loc.y = c*pos->loc.y+b;
 }
-
-
-
-
-
-

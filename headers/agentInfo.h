@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../utils/param_reader.h"
+#include "roomInfo.h"
+
 
 typedef struct agent_info
 {
@@ -14,6 +15,7 @@ typedef struct agent_info
 int get_agent_count(param_slist_t *list)
 {
 	int result = 0;
+	init_param_slist(list);
 	read_param_file("parameters/list_agent.txt", list);
 	result = list->size;
 	return result;
