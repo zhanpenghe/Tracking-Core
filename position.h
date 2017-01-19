@@ -7,6 +7,7 @@ typedef struct pos_calc
 	blist_t *list;
 	int agent_num;	//total number of agents... from config.h
 	agent_info_t *infos;
+	pos_list_t *pos_list;
 }pos_calc_t;
 
 int get_info_from_room(agent_info_t infos[], int room,int agent_num, int found1, int found2)

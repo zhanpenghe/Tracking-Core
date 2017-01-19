@@ -20,15 +20,16 @@
 
 int listenfd = 0; //file descriptors
 int port = 9999;	//default port
-logger_t *logger;
-
-agent_list_t *agent_list;
-
 int agent_num = 0;
 
-pos_calc_t *info_for_calculation;
+//Loggers for I/O
+logger_t *logger;
 
-blist_t *list;	// blist.. holds all the information
+//data structures
+agent_list_t *agent_list;	// agent handlers 
+pos_calc_t *info_for_calculation;	//information for calculation
+blist_t *list;	//store all the rssi
+pos_list_t *position_list;	//store all the position
 
 int main(int argc, char **argv)
 {
@@ -55,6 +56,8 @@ int main(int argc, char **argv)
 
     logger = (logger_t*) malloc(sizeof(logger_t));
     init_logger(logger, 'w', "log.txt");
+	printf("[INFO] Successfully created logger for rssi\n");
+
 
     agent_list = (agent_list_t *)malloc(sizeof(agent_list_t));
     init_agent_list(agent_list);
@@ -62,7 +65,9 @@ int main(int argc, char **argv)
     list = (blist_t *) malloc(sizeof(blist_t));
     init_blist(list, 10);
 
-    printf("[INFO] Successfully created logger\n");
+    position_list = (pos_list_t *) malloc(sizeof(pos_list_t));
+    init_pos_list(position_list);
+
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
