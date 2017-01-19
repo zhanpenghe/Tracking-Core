@@ -30,8 +30,8 @@ void init_pos(pos_t *p, int x, int y, int room)
 {
 	if(p == NULL) return;
 
-	p->loc->x = x;
-	p->loc->y = y;
+	p->loc.x = x;
+	p->loc.y = y;
 	p->room = room;
 	p->next = NULL;
 }
@@ -53,15 +53,6 @@ void init_b_pos(b_pos_t *b, char *mac)
 	b->mac[17] = 0;
 }
 
-void free_b_pos(b_pos_t *b)
-{
-	if(b == NULL) return;
-
-	clear_b_pos(b);
-
-	free(b);
-}
-
 void clear_b_pos(b_pos_t *b)
 {
 	pos_t *curr, *next;
@@ -77,6 +68,15 @@ void clear_b_pos(b_pos_t *b)
 	b->size = 0;
 	b->head = NULL;
 	b->tail = NULL;
+}
+
+void free_b_pos(b_pos_t *b)
+{
+	if(b == NULL) return;
+
+	clear_b_pos(b);
+
+	free(b);
 }
 
 void init_pos_list(pos_list_t *list)
@@ -128,7 +128,7 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 
 		temp->next = NULL;
 		free_pos(temp);
-		temp->size -= 1;
+		b->size -= 1;
 	}
 
 	b->tail->next = p;
@@ -136,18 +136,14 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 	b->size+=1;
 }
 
-void add_pos_to_list(pos_list_t *list, int x, int y, char *mac, int room)
+void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac)
 {
 	b_pos_t *temp;
-	pos_t *pos;
-	if(list == NULL) return;
+	if(list == NULL || pos == NULL || mac == NULL) return;
 
-	pos = (pos_t *)malloc(sizeof(pos_t));
-	init_pos(pos, x, y, room);
-	if(list->head == NULL)
-	{
+	if(list->head == NULL){
 		temp = (b_pos_t *)malloc(sizeof(b_pos_t));
-		init_b_pos(temp);
+		init_b_pos(temp, mac);
 
 		add_pos_to_beacon(temp, pos);
 
@@ -158,26 +154,35 @@ void add_pos_to_list(pos_list_t *list, int x, int y, char *mac, int room)
 	}
 
 	temp = list->head;
-	while(temp != NULL)
-	{
-		if(strcmp(temp->mac, mac) == 0)
-		{
+	while(temp != NULL){
+		if(strcmp(temp->mac, mac)==0){
 			printf("FOUND\n");
-			if(temp->tail->room != rooom) clear_b_pos(temp);
-			add_pos_to_beacon(temp,pos);
+			if(temp->tail->room!=pos->room) clear_b_pos(temp);
+			add_pos_to_beacon(temp, pos);
 			return;
 		}
 		temp = temp->next;
 	}
 
 	temp = (b_pos_t *)malloc(sizeof(b_pos_t));
-	init_b_pos(temp);
+	init_b_pos(temp, mac);
 
 	add_pos_to_beacon(temp, pos);
 
 	list->tail->next = temp;
 	list->tail = temp;
 	list->size+=1;
+}
+
+void add_pos_info_to_list(pos_list_t *list, int x, int y, char *mac, int room)
+{
+	pos_t *pos;
+	if(list == NULL) return;
+
+	pos = (pos_t *)malloc(sizeof(pos_t));
+	init_pos(pos, x, y, room);
+
+	add_pos_to_list(list, pos, mac);
 }
 
 void get_pos_by_mac(pos_list_t *list, char *mac)

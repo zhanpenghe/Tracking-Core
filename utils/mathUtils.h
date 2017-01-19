@@ -41,7 +41,7 @@ void get_line(point_t *p1, point_t *p2, line_t *line)
 	line->y_int = (p1->y - line->slope*p1->x);
 }
 
-void get_point_by_ratio(point_t *p1, point_t *p2, point *target, float d1, float d2)
+void get_point_by_ratio(point_t *p1, point_t *p2, point_t *target, float d1, float d2)
 {
 	float r1, r2;
 	if(p1 == NULL || p2 == NULL || target == NULL || d1 < 0 || d2 < 0) return;

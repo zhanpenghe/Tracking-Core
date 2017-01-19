@@ -1,5 +1,5 @@
 OBJS = tracking_server
-LIBS = -lpthread
+LIBS = -lpthread -lm
 CC = gcc
 FILE = ./server.c
 
