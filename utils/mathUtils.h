@@ -36,7 +36,7 @@ float get_distance(point_t *p1, point_t *p2)
 float get_slope(point_t *p1, point_t *p2)
 {
 	if(p1 == NULL || p2 == NULL) return NAN;// change to signal later... something wrong...
-
+	printf("(p2y(%f) - p1y(%f))/(p2x(%f)-p1x(%f)) = %f..\n",p2->y,p1->y,p2->x,p1->x,(p2->y - p1->y)/(p2->x - p1->x) );
 	return (p2->y - p1->y)/(p2->x - p1->x);
 }
 
@@ -92,6 +92,6 @@ void get_point_by_ratio(point_t *p1, point_t *p2, point_t *target, float d1, flo
 
 float rssi_to_distance(int rssi, float PA, float PN)
 {
-	return pow(10, (PA-(float)rssi)/(10.0*PN));
+	return powf(10, (PA-(float)rssi)/(10.0*PN));
 }
 

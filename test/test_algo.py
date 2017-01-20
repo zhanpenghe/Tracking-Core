@@ -1,0 +1,110 @@
+# Draw line using ax+by = c
+
+import numpy as np
+import math
+
+def print_line(line):
+	c = float(line[0])
+	a = float(line[1][0])
+	b = float(line[1][1])
+
+	print('slope: '+str(c/b)+' intersect:'+str(-a/b));
+
+# Positioning function
+def calc_position(pos_list,agentPos_dic,n,A,center_pos,radius):
+	temp_list=[]
+
+	ratio_ab = calc_ratio(pos_list[0][1],pos_list[1][1],n,A)
+	ratio_ac = calc_ratio(pos_list[0][1],pos_list[2][1],n,A)
+	ratio_bc = calc_ratio(pos_list[1][1],pos_list[2][1],n,A)
+	print(ratio_ab)
+	print(ratio_ac)
+	print(ratio_bc)
+
+	line_ab = calc_orth(agentPos_dic[pos_list[0][0]],agentPos_dic[pos_list[1][0]],ratio_ab)
+	line_ac = calc_orth(agentPos_dic[pos_list[0][0]],agentPos_dic[pos_list[2][0]],ratio_ac)
+	line_bc = calc_orth(agentPos_dic[pos_list[1][0]],agentPos_dic[pos_list[2][0]],ratio_bc)
+
+	print_line(line_ab)
+	print_line(line_ac)
+	print_line(line_bc)
+
+	temp_list.append(solve_matrix(line_ab,line_ac))
+	temp_list.append(solve_matrix(line_ab,line_bc))
+	temp_list.append(solve_matrix(line_ac,line_bc))
+
+	position_temp = [0,0]
+	position_temp[0] = (temp_list[0][0][0]+temp_list[1][0][0]+temp_list[2][0][0])/3
+	position_temp[1] = (temp_list[0][1][0]+temp_list[1][1][0]+temp_list[2][1][0])/3
+
+	#print(temp_list[0][0],temp_list[1][0])
+	return [int(position_temp[0]),int(position_temp[1])]
+
+def solve_matrix(a,b):
+	matrix_a = np.array([a[1],b[1]])
+	matrix_b = np.array([[a[0]],[b[0]]])
+	return np.linalg.inv(matrix_a).dot(matrix_b).tolist()
+
+# Calculate distance ratio
+def calc_ratio(a,b,n,A):
+	# Ratio
+	ratio = math.pow(10,(b-a)/(10.0*n))
+	return ratio
+
+'''
+# Calculate Orthogonal
+def calc_orth(start,end,ratio):
+	if start == [0,0] or end==[0,0] or (start[1]/start[0]) == (end[1]/end[0]):
+		a = start[0] - end[0]
+		b = start[1] - end[1]
+	else:
+		if (end[0]-start[0]) != 0:
+			a = start[1]-(end[1]-start[1])*start[0]/float(end[0]-start[0])
+			#print(a,end=',')
+			a = 1/float(a)
+			#print(a)
+		else:
+			a = float(0)
+		if (end[1]-start[1]) != 0:
+			b = start[0]-(end[0]-start[0])*start[1]/float(end[1]-start[1])
+			b = -1/float(b)
+			#print(b,end='')
+		else:
+			b = float(0)
+	#print("\n")
+	#print("Current",a,b)
+	mid = np.divide(np.array([start[0]+ratio*end[0],start[1]+ratio*end[1]]),ratio+1)
+	mid_scalar = mid[0]*a+mid[1]*b
+	#print(mid,a,b,ratio)
+	#print(a/mid_scalar,b/mid_scalar)
+	if mid_scalar == 0:
+		return [a,b]
+	else:
+		return [a/float(mid_scalar),b/float(mid_scalar)]
+'''
+# Calculate Orthogonal: Return [c,[a,b]] for ax+by=c
+def calc_orth(start,end,ratio):
+    r_start = math.pow(start[0],2)+math.pow(start[1],2)
+    r_end = math.pow(end[0],2)+math.pow(end[1],2)
+
+    a = (end[0]-start[0])
+    b = (end[1]-start[1])
+
+    if r_start == r_end:
+        return [0,[a,b]]
+    else:
+        mid = np.divide(np.array([start[0]+ratio*end[0],start[1]+ratio*end[1]]),ratio+1)
+        mid_scalar = mid[0]*a+mid[1]*b
+        if mid_scalar == 0:
+            return [0,[a,b]]
+        else:
+            return [1,[a/float(mid_scalar),b/float(mid_scalar)]]
+
+rssi_list = [['BC', -52], ['FB', -55], ['8D', -55]]
+a_dict = {}
+
+a_dict['BC'] = [663, 91]
+a_dict['FB'] = [941, 312]
+a_dict['8D'] = [1253, 112]
+
+print(calc_position(rssi_list, a_dict, 3.5,-47, 0, 0))

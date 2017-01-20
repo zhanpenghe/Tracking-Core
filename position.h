@@ -165,22 +165,25 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 		//calc position here
 		if(curr->size >= 3){
 			get_rssi_for_calc(curr, rssi_pairs, agent_num);
-			/*printf("\nCurrent beacon:\n");
+			printf("\nCurrent beacon:\n");
 			print_beacon(curr);
 			printf("Data get from beacon:\n");
 			for(i=0; i<agent_num; i++)
 			{
 				if(rssi_pairs[i].rssi == 0) continue;
 				printf("%s: %d\n", rssi_pairs[i].mac, rssi_pairs[i].rssi);
-			}*/
+			}
 			room = get_room_num(rssi_pairs, infos, agent_num, &prep);
 			if(room == -1) printf("SOMETHING WRONG WITH ROOM CALC\n");
 			else{// calculate position
 				print_prep(&prep);
 				pos = (pos_t *) malloc(sizeof(pos_t));
 				calculate(&prep, pos);
+				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				adjust(pos, room_infos[room].a, room_infos[room].b, room_infos[room].c, room_infos[room].d);
+				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				zone_adjust(pos);
+				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				printf("DONE WITH CALC\n");
 				pthread_mutex_lock(&pos_list->lock);
 				add_pos_to_list(pos_list, pos, curr->mac, 10);

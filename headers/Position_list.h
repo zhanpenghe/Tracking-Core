@@ -207,6 +207,7 @@ void get_average_pos(b_pos_t *b, point_t *result)
 	curr = b->head;
 	while(curr != NULL)
 	{
+		printf("x:%f, y:%f\n", curr->loc.x, curr->loc.y);
 		result->x += curr->loc.x;
 		result->y += curr->loc.y;
 		curr = curr->next;
@@ -234,7 +235,7 @@ void get_pos(pos_list_t *list, char *buf, int *length)
 		buf[offset+17] = '|';
 		offset+=18;
 		get_average_pos(curr, &average);
-		//printf("%f|%f... %d|%d\n", average.x, average.y, (int) average.x, (int) average.y);
+		printf("%f|%f... %d|%d\n", average.x, average.y, (int) average.x, (int) average.y);
 		sprintf(temp,"%d", (int)average.x);
 		len = strlen(temp);
 		//printf("%s..%d\n", temp, len);

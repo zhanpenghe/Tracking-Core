@@ -20,6 +20,7 @@ void handle_output_connection(pos_list_t *pos_list, int connfd){
 	{
 		recv_buf[len] = 0;
 		get_pos(pos_list, send_buf, &offset);
+		printf("%s\n", send_buf);
 		write(connfd, send_buf, offset);
 	}
 }
