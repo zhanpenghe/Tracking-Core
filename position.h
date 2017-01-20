@@ -146,12 +146,13 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 	return -1;
 }
 
-void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], room_info_t room_infos[])
+void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], room_info_t room_infos[], pos_list_t *pos_list)
 {
 	int8_t i = 0;
 	int8_t room = -1, last_room = -1;
 	beacon_t *curr;
 	rssi_pair_t rssi_pairs[agent_num];
+	pos_t *pos;
 
 	calc_prep_t prep;
 	prep.infos = infos;
@@ -164,17 +165,25 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 		//calc position here
 		if(curr->size >= 3){
 			get_rssi_for_calc(curr, rssi_pairs, agent_num);
-			printf("\nCurrent beacon:\n");
+			/*printf("\nCurrent beacon:\n");
 			print_beacon(curr);
 			printf("Data get from beacon:\n");
 			for(i=0; i<agent_num; i++)
 			{
 				if(rssi_pairs[i].rssi == 0) continue;
 				printf("%s: %d\n", rssi_pairs[i].mac, rssi_pairs[i].rssi);
-			}
+			}*/
 			room = get_room_num(rssi_pairs, infos, agent_num, &prep);
 			if(room == -1) printf("SOMETHING WRONG WITH ROOM CALC\n");
-			else print_prep(&prep);
+			else{// calculate position
+				print_prep(&prep);
+				pos = (pos_t *) malloc(sizeof(pos_t));
+				calculate(&prep, pos);
+				printf("DONE WITH CALC\n");
+				pthread_mutex_lock(&pos_list->lock);
+				add_pos_to_list(pos_list, pos, curr->mac, 10);
+				pthread_mutex_unlock(&pos_list->lock);
+			}
 		}else{
 			printf("Too less info for position calculation. (%s, %d)\n", curr->mac, curr->size);
 		}
@@ -191,6 +200,7 @@ void *pos_generation(void *arg)
 	blist_t *list;
 	agent_info_t *infos;
 	room_info_t *room_infos;
+	pos_list_t *pos_list;
 
 	int agent_num = 0;
 
@@ -205,10 +215,18 @@ void *pos_generation(void *arg)
 	agent_num = info->agent_num;
 	infos = info->infos;
 	room_infos = info->room_infos;
+	pos_list = info->pos_list;
+
+	if(list == NULL || infos == NULL || room_infos == NULL)
+	{
+		printf("ERROR WHEN INITIATING THE POS CALCULATION THREAD.\n");
+		raise(SIGINT);
+		return NULL;
+	}
 
 	while(1)
 	{
 		sleep(1);
-		calc_all_beacon_pos(list, agent_num, infos, room_infos);
+		calc_all_beacon_pos(list, agent_num, infos, room_infos, pos_list);
 	}
 }

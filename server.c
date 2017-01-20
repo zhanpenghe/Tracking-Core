@@ -3,19 +3,14 @@
  * @Author Adam Ho
  */
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
 
-#include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
+#include "posOutputHandler.h"
 #include "headers/server.h"
 
 int listenfd = 0; //file descriptors
@@ -140,12 +135,15 @@ void SIGINT_Handler(int sig)
 	pthread_mutex_unlock(&logger->lock);
 	pthread_mutex_unlock(&list->lock);
 
+	//pthread_mutex_lock(&position_list->lock);
 	free(info_for_calculation);
 	free_logger(logger);
 	printf("[INFO] Logger is freed.\n");
 	print_blist(list);
 	free_blist(list);
 	printf("[INFO] Blist is freed.\n");
+	free_pos_list(position_list);
+
 	exit(0);
 }
 
@@ -186,6 +184,7 @@ void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 
 	info_for_calculation = (pos_calc_t *) malloc(sizeof(pos_calc_t));
 	info_for_calculation->list = list;
+	info_for_calculation->pos_list = position_list;
 	info_for_calculation->agent_num = agent_num;
 	info_for_calculation->infos = infos;
 	info_for_calculation->room_infos = room_infos;

@@ -43,7 +43,7 @@ void free_pos(pos_t *p)
 	free(p);
 }
 
-void init_b_pos(b_pos_t *b, char *mac)
+void init_b_pos(b_pos_t *b, char *mac, int max)
 {
 	if(b == NULL) return;
 	b->head = NULL;
@@ -52,13 +52,14 @@ void init_b_pos(b_pos_t *b, char *mac)
 	b->size = 0;
 	strncpy(b->mac, mac, 17);
 	b->mac[17] = 0;
+	b->max = max;
 }
 
 void clear_b_pos(b_pos_t *b)
 {
 	pos_t *curr, *next;
 	if(b == NULL) return;
-
+	printf("clear..\n");
 	curr = b->head;
 	while(curr != NULL)
 	{
@@ -115,7 +116,7 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 {
 	pos_t *temp;
 	if(b == NULL || p == NULL) return;
-
+	printf("add b\n");
 	p->next = NULL;
 	if(b->head == NULL)
 	{
@@ -142,14 +143,14 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 	b->size+=1;
 }
 
-void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac)
+void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac, int buf_size)
 {
 	b_pos_t *temp;
 	if(list == NULL || pos == NULL || mac == NULL) return;
 
 	if(list->head == NULL){
 		temp = (b_pos_t *)malloc(sizeof(b_pos_t));
-		init_b_pos(temp, mac);
+		init_b_pos(temp, mac, buf_size);
 
 		add_pos_to_beacon(temp, pos);
 
@@ -163,7 +164,11 @@ void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac)
 	while(temp != NULL){
 		if(strcmp(temp->mac, mac)==0){
 			printf("FOUND\n");
-			if(temp->tail->room!=pos->room) clear_b_pos(temp);
+			if(temp->size != 0 || temp->head != NULL){
+				printf("debug,,\n");
+				if(temp->tail->room != pos->room)	clear_b_pos(temp);
+			}
+			printf("test..\n");
 			add_pos_to_beacon(temp, pos);
 			return;
 		}
@@ -171,7 +176,7 @@ void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac)
 	}
 
 	temp = (b_pos_t *)malloc(sizeof(b_pos_t));
-	init_b_pos(temp, mac);
+	init_b_pos(temp, mac, buf_size);
 
 	add_pos_to_beacon(temp, pos);
 
@@ -188,7 +193,7 @@ void add_pos_info_to_list(pos_list_t *list, int x, int y, char *mac, int room)
 	pos = (pos_t *)malloc(sizeof(pos_t));
 	init_pos(pos, x, y, room);
 
-	add_pos_to_list(list, pos, mac);
+	add_pos_to_list(list, pos, mac, 10);
 }
 
 void get_pos_by_mac(pos_list_t *list, char *mac)

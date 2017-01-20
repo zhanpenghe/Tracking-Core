@@ -447,7 +447,7 @@ void store_rssi_from_agent(blist_t *list, char *msg)
 		pthread_mutex_lock(&list->lock);
 		printf("[INFO] Adding rssi to list\n");
 		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);	
-		print_blist(list);
+		//print_blist(list);
 
 		pthread_mutex_unlock(&list->lock);
 		printf("[INFO] Done with adding rssi to list\n");
