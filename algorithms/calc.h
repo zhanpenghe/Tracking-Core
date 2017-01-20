@@ -34,7 +34,7 @@ void calculate(calc_prep_t *prep, pos_t *result)
 {
 
 	float d0, d1, d2;
-	float PN, PA;
+	float PN = 3.5, PA = -47;
 	point_t p0, p1, p2, p01, p02, p12;
 	line_t l01, l02, l12;
 	if(prep == NULL || result == NULL) return;
@@ -47,6 +47,8 @@ void calculate(calc_prep_t *prep, pos_t *result)
 	d0 = rssi_to_distance(prep->rssi[0], PA, PN);
 	d1 = rssi_to_distance(prep->rssi[1], PA, PN);
 	d2 = rssi_to_distance(prep->rssi[2], PA, PN);
+
+	printf("d: %f..%f..%f\n", d0, d1, d2);
 
 	get_point_by_ratio(&p0, &p1, &p01, d0, d1);
 	get_point_by_ratio(&p0, &p2, &p02, d0, d2);
@@ -62,6 +64,7 @@ void calculate(calc_prep_t *prep, pos_t *result)
 
 	result->loc.x = (p0.x+p1.x+p2.x)/3.0;
 	result->loc.y = (p0.y+p1.y+p2.y)/3.0;
+	printf("%f..%f\n", result->loc.x, result->loc.y);
 }
 
 

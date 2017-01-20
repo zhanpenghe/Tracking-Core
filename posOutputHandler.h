@@ -9,16 +9,18 @@
 
 
 void handle_output_connection(pos_list_t *pos_list, int connfd){
-	int len;
-	char buf[1024];
+	int len, offset=0;
+	char recv_buf[32];
+	char send_buf[1024];
 
+	memset(recv_buf, '0', 32);
+	memset(send_buf, '0', 1024);
 	//trigger sending by app..
-	while((len = read(connfd, buf, sizeof(buf)-1))>0)
+	while((len = read(connfd, recv_buf, sizeof(recv_buf)-1))>0)
 	{
-		buf[len] = 0;
-		
-
-		//write(agent->con_fd, ret, 2);
+		recv_buf[len] = 0;
+		get_pos(pos_list, send_buf, &offset);
+		write(connfd, send_buf, offset);
 	}
 }
 
@@ -55,5 +57,7 @@ void *start_pos_output_thread(void *arg){
 	{
 		printf("[INFO] Listening on port 9998...(OUTPUT PORT)\n");
 		connfd = accept(listen_fd, (struct sockaddr*)NULL, NULL);
+
+		handle_output_connection(pos_list, connfd);
 	}
 }

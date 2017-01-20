@@ -199,7 +199,7 @@ void start_output_thread()
 {
 	pthread_t tid;
 
-	pthread_create(&tid, NULL, start_pos_output_thread, NULL);
+	pthread_create(&tid, NULL, start_pos_output_thread, position_list);
 }
 
 void agent_thread_init(int connfd)
