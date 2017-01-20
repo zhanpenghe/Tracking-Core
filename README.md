@@ -9,3 +9,6 @@ To compile:
   
 To delete the executable:
   make clean
+
+To setup the executable with environment(Created in bin):
+  . setup.sh
