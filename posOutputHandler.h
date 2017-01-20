@@ -7,11 +7,29 @@
 
 #include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
 
+
+void handle_output_connection(pos_list_t *pos_list, int connfd){
+	int len;
+	char buf[1024];
+
+	//trigger sending by app..
+	while((len = read(connfd, buf, sizeof(buf)-1))>0)
+	{
+		buf[len] = 0;
+		
+
+		//write(agent->con_fd, ret, 2);
+	}
+}
+
+
 void *start_pos_output_thread(void *arg){
 	struct sockaddr_in serv_addr;
 	int listen_fd;
 	int connfd;
 	int yes = 1;
+
+	pos_list_t *pos_list = (pos_list_t*) arg;
 
 	listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&serv_addr, '0', sizeof(serv_addr));
@@ -33,10 +51,9 @@ void *start_pos_output_thread(void *arg){
 		exit(0);
 	}
 
-
 	while(1)
 	{
-		printf("[INFO] Listening on port 9998...\n");
+		printf("[INFO] Listening on port 9998...(OUTPUT PORT)\n");
 		connfd = accept(listen_fd, (struct sockaddr*)NULL, NULL);
 	}
 }

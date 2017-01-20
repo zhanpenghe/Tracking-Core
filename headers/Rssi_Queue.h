@@ -38,6 +38,7 @@ typedef struct rssi_queue
 	rssi_t *head;
 	rssi_t *tail;
 	char mac[18];
+	int out;
 	int size;
 	int max;
 	struct rssi_queue *next;
@@ -87,7 +88,7 @@ void init_rssi_queue(rssi_queue_t *q, char* mac, int max)
 	q->next = NULL;
 	q->size = 0;
 	q->max = max;
-
+	q->out = 34;
 	strncpy(q->mac, mac, 17);
 	q->mac[17] = 0;
 }
@@ -188,6 +189,31 @@ rssi_t *dequeue(rssi_queue_t *q)
 	return result;
 }
 
+void set_out(rssi_queue_t *q)
+{
+	rssi_t *curr;
+	int temp = 0;
+	int MA = 5;
+
+	if(q == NULL) return;
+	if(q->head == NULL || q->size == 0) return;
+
+	curr = q->head;
+	temp = curr->rssi;
+	while(curr != NULL)
+	{
+		if(curr->rssi > temp) temp = curr->rssi;
+		curr = curr->next;
+	}
+
+	if(q->size<q->max)
+	{
+		q->out = temp;
+	}else{
+		q->out = (q->out*(MA-1)+temp)/MA;
+	}
+}
+
 void enqueue(rssi_queue_t *q, rssi_t *r)
 {
 	if(q == NULL || r == NULL) return;
@@ -212,11 +238,12 @@ void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 
 	if(q->size < q->max){
 		enqueue(q, r);
-		return;
+		set_out(q);
 	}
-	if(q->size >= q->max){
+	else{
 		free_rssi(dequeue(q));
 		enqueue(q, r);
+		set_out(q);
 	}
 }
 
@@ -234,6 +261,10 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 
 	strncpy(pair->mac, q->mac, 17);
 	pair->mac[17] = 0;
+
+	pair->rssi = q->out;
+/*
+
 	if(q->size == 0){
 		pair->rssi = 34;
 		return;
@@ -266,16 +297,7 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 		curr = curr->next;
 	}
 
-	pair->rssi = (int)(MA*((float)curr->rssi) + (1-MA)*((float)result));
-
-	/*while(curr!=q->head)
-	{
-		avg += (1-MA)/(q->max-1)*(float)curr->rssi;
-		curr = curr->next;
-	}
-
-	avg = (0.2)*((float)curr->rssi);
-	pair->rssi = (int) avg;*/
+	pair->rssi = (int)(MA*((float)curr->rssi) + (1-MA)*((float)result));*/
 }
 
 void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
@@ -348,7 +370,7 @@ void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *be
 {
 	beacon_t *temp;
 	if(list == NULL || agent_mac == NULL || beacon_mac == NULL) return;
-	printf("%d\n", list->size);
+
 	if(list->head == NULL || list->size == 0){
 		temp = (beacon_t *) malloc(sizeof(beacon_t));
 		init_beacon(temp, beacon_mac);
@@ -437,15 +459,18 @@ void store_rssi_from_agent(blist_t *list, char *msg)
 	line = strtok(msg,"\n");
 	while((line = strtok(NULL, "\n"))!=NULL)
 	{
+		//printf("%s\n", line);
 		temp = strtok(line, "|");
 		beacon_mac = temp;
 		temp = strtok(NULL, "|");
 		rssi_str = temp;
 		temp = strtok(NULL,"|");
 		line = temp;
-		//printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
+		if(agent_mac == NULL || beacon_mac == NULL || line == NULL) continue;
 		pthread_mutex_lock(&list->lock);
-		printf("[INFO] Adding rssi to list\n");
+		//printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
+
+		printf("[INFO] Adding rssi to list..\n");
 		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);	
 		//print_blist(list);
 

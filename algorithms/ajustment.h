@@ -110,6 +110,6 @@ void adjust(pos_t *pos, float a, float b, float c, float d)
 {
 	if(pos == NULL) return;
 
-	pos->loc.x = a*pos->loc.x+b;
-	pos->loc.y = c*pos->loc.y+b;
+	pos->loc.x = (pos->loc.x-a)*b;
+	pos->loc.y = (pos->loc.y-c)*d;
 }

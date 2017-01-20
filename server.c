@@ -76,10 +76,11 @@ int main(int argc, char **argv)
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
 	start_calculation_thread(agent_infos, room_infos);
+	start_output_thread();
 
 	while(1)
 	{
-		printf("[INFO] Listening on port %d...\n", port);
+		printf("[INFO] Listening on port %d...(AGENT PORT)\n", port);
 		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
 		//set up agent handling thread
@@ -192,6 +193,13 @@ void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 	pthread_create(&tid, NULL, pos_generation, (void*)info_for_calculation);
 
 	printf("[INFO] Calcultion thread started\n");
+}
+
+void start_output_thread()
+{
+	pthread_t tid;
+
+	pthread_create(&tid, NULL, start_pos_output_thread, NULL);
 }
 
 void agent_thread_init(int connfd)

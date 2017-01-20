@@ -5,6 +5,8 @@
 
 int start_server_thread();
 
+void start_output_thread();
+
 void start_calculation_thread();
 
 void agent_thread_init(int connfd);

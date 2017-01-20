@@ -179,6 +179,8 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 				print_prep(&prep);
 				pos = (pos_t *) malloc(sizeof(pos_t));
 				calculate(&prep, pos);
+				adjust(pos, room_infos[room].a, room_infos[room].b, room_infos[room].c, room_infos[room].d);
+				zone_adjust(pos);
 				printf("DONE WITH CALC\n");
 				pthread_mutex_lock(&pos_list->lock);
 				add_pos_to_list(pos_list, pos, curr->mac, 10);
