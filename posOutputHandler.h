@@ -45,7 +45,8 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 	int i;
 	char beacon_id[32];
 	char mac[17];
-	char error_msg[] = "Please provide a beacon id.";
+	char *found_mac = NULL;
+	char error_msg[] = "Please provide a valid beacon id.";
 	beacon_info_t *infos;
 
 	if (ev == MG_EV_HTTP_REQUEST) {
@@ -55,16 +56,23 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 		snprintf(url, sizeof(url), "%.*s", (int) hm->uri.len, hm->uri.p);
 		i = get_beacon_name_from_url(url, beacon_id);
 		if(i == 1){
-			strncpy(mac, get_beacon_mac_addr(beacon_id), 17);
-			mac[17] = 0;
-			mg_printf(c, 
-				"HTTP/1.1 200 OK\r\n"
-				"Content-Type: application/json\r\n"
-				"Content-Length: %d\r\n"
-				"\r\n"
-				"%s",
-				17, mac);
-		}else if(i  == 0)
+			found_mac = get_beacon_mac_addr(beacon_id);
+
+			if(found_mac != NULL){
+				strncpy(mac, found_mac, 17);
+				mac[17] = 0;
+				mg_printf(c,
+					"HTTP/1.1 200 OK\r\n"
+					"Content-Type: application/json\r\n"
+					"Content-Length: %d\r\n"
+					"\r\n"
+					"%s",
+					17, mac);
+				return;
+			}
+		}
+		
+		if(i  == 0 || found_mac == NULL)
 		{
 			mg_printf(c, 
 				"HTTP/1.1 200 OK\r\n"

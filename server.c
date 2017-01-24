@@ -217,7 +217,7 @@ void start_output_thread()
 {
 	pthread_t tid;
 
-	pthread_create(&tid, NULL, start_pos_output_thread, position_list);
+	pthread_create(&tid, NULL, start_pos_output_thread, NULL);
 }
 
 void agent_thread_init(int connfd)
@@ -271,10 +271,11 @@ char *get_beacon_mac_addr(char *id)
 	int i = 0;
 
 	while(i<beacon_num)
-	{
+	{	
 		if(strcmp(id, beacon_infos[i].id) == 0) return beacon_infos[i].mac;
 		i++;
 	}
+	return NULL;
 }
 
 void *get_pos_list()
