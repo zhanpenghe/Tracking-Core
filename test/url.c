@@ -1,4 +1,5 @@
 #include "../utils/mongoose.c"
+#include "test.c"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -31,11 +32,7 @@ int get_beacon_name_from_url(char *str, char *beacon_id)
 	}
 
 	return 0;
-
 }
-
-
-
 
 static void ev_handler(struct mg_connection *c, int ev, void *p) {
 

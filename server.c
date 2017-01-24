@@ -3,7 +3,6 @@
  * @Author Adam Ho
  */
 
-
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -11,12 +10,12 @@
 #include <signal.h>
 
 #include "posOutputHandler.h"
-#include "headers/server.h"
 
 int listenfd = 0; //file descriptors
-int port = 9999;	//default port
+int port = 9999; //default port
 int agent_num = 0;
 int room_num = 0;
+int beacon_num = 0;
 
 //Loggers for I/O
 logger_t *logger;
@@ -26,6 +25,8 @@ agent_list_t *agent_list;	// agent handlers
 pos_calc_t *info_for_calculation;	//information for calculation
 blist_t *list;	//store all the rssi
 pos_list_t *position_list;	//store all the position
+
+beacon_info_t *beacon_infos;
 
 int main(int argc, char **argv)
 {
@@ -39,18 +40,29 @@ int main(int argc, char **argv)
 	param_slist_t *agent_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
 	agent_num = get_agent_count(agent_infos_p);
 
-	agent_info_t agent_infos[agent_num];		//to be used later in calculation
+	agent_info_t agent_infos[agent_num];
 
 	load_agent_infos(agent_infos, agent_infos_p);
 	free_param_slist(agent_infos_p);
 
+	//get room info from list_beacon.txt
 	param_slist_t *room_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
 	room_num = get_room_count(room_infos_p);
 
-	room_info_t room_infos[room_num];		//to be used later in calculation
+	room_info_t room_infos[room_num];
 
 	load_room_infos(room_infos, room_infos_p);
 	free_param_slist(room_infos_p);
+
+	//get beacon info
+	param_slist_t *beacon_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
+
+	beacon_num = get_beacon_count(beacon_infos_p);
+	beacon_info_t beacon_infos_array[beacon_num];
+
+	load_beacon_infos(beacon_infos_array, beacon_infos_p);
+	free_param_slist(beacon_infos_p);
+	beacon_infos = beacon_infos_array;
 
 	//install a signal handler here
 	if (signal(SIGINT, SIGINT_Handler) == SIG_ERR) {
@@ -58,24 +70,30 @@ int main(int argc, char **argv)
 		exit(1);
     }
 
+    //logger for rssi
     logger = (logger_t*) malloc(sizeof(logger_t));
     init_logger(logger, 'w', "log.txt");
 	printf("[INFO] Successfully created logger for rssi\n");
 
-
+	//agent list(all agent threads)
     agent_list = (agent_list_t *)malloc(sizeof(agent_list_t));
     init_agent_list(agent_list);
 
+    //list for rssi
     list = (blist_t *) malloc(sizeof(blist_t));
     init_blist(list, 10);
 
+    //list for positions
     position_list = (pos_list_t *) malloc(sizeof(pos_list_t));
     init_pos_list(position_list);
 
+    //local hostname
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
+	//start calculation thread
 	start_calculation_thread(agent_infos, room_infos);
+	//start API
 	start_output_thread();
 
 	while(1)
@@ -248,3 +266,18 @@ void agent_thread_init_log(int connfd)
 	printf("thread created\n");
 }
 
+char *get_beacon_mac_addr(char *id)
+{
+	int i = 0;
+
+	while(i<beacon_num)
+	{
+		if(strcmp(id, beacon_infos[i].id) == 0) return beacon_infos[i].mac;
+		i++;
+	}
+}
+
+void *get_pos_list()
+{
+	return (void *)position_list;
+}

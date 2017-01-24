@@ -1,4 +1,4 @@
-#include "../headers/agentInfo.h"
+#include "../headers/beaconInfo.h"
 #include "ajustment.h"
 
 typedef struct calc_prep
