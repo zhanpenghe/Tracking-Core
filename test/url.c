@@ -3,23 +3,72 @@
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 
+int get_beacon_name_from_url(char *str, char *beacon_id)
+{
+	char *part, *beacon;
+	int i = 0;
+
+	if(str == NULL) return -1;
+
+	while(str[i] == '/'){
+		i++;
+	}
+	part = str+i;
+	
+	part = strtok(part, "/");
+
+	//check url
+	if(strcmp(part, "test") == 0)
+	{
+		//get beacon id
+		beacon = part;
+		beacon = strtok(NULL,"/");
+
+		if(beacon == NULL) return 0;
+
+		strncpy(beacon_id, beacon, strlen(beacon)+1);
+		return 1;
+	}
+
+	return 0;
+
+}
+
+
+
+
 static void ev_handler(struct mg_connection *c, int ev, void *p) {
+
+	int i;
+	char beacon_id[32];
+	char error_msg[] = "Please provide a beacon id.";
 
 	if (ev == MG_EV_HTTP_REQUEST) {
 		struct http_message *hm = (struct http_message *) p;
-		char reply[100];
+		char url[100];
 
-		/* Simulate long calculation */
-		sleep(3);
-		/* Send the reply */
-		snprintf(reply, sizeof(reply), "{ \"uri\": \"%.*s\" }\n", (int) hm->uri.len, hm->uri.p);
-		mg_printf(c, 
+		snprintf(url, sizeof(url), "%.*s", (int) hm->uri.len, hm->uri.p);
+		i = get_beacon_name_from_url(url, beacon_id);
+		if(i == 1){
+			mg_printf(c, 
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Type: application/json\r\n"
 				"Content-Length: %d\r\n"
 				"\r\n"
 				"%s",
-				(int) strlen(reply), reply);
+				(int) strlen(beacon_id), beacon_id);
+		}else if(i  == 0)
+		{
+			mg_printf(c, 
+				"HTTP/1.1 200 OK\r\n"
+				"Content-Type: application/json\r\n"
+				"Content-Length: %d\r\n"
+				"\r\n"
+				"%s",
+				(int) strlen(error_msg), error_msg);
+		}else{
+
+		}
 	}
 }
 
