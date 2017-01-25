@@ -9,7 +9,7 @@
 #include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
 #include "./utils/mongoose.c"
 
-static const char *s_http_port = "8000";
+static const char *s_http_port = "9998";
 static struct mg_serve_http_opts s_http_server_opts;
 
 int get_beacon_name_from_url(char *str, char *beacon_id)
@@ -27,7 +27,7 @@ int get_beacon_name_from_url(char *str, char *beacon_id)
 	part = strtok(part, "/");
 
 	//check url
-	if(strcmp(part, "test") == 0)
+	if(strcmp(part, "tag") == 0)
 	{
 		//get beacon id
 		beacon = part;
@@ -46,8 +46,8 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 	char beacon_id[32];
 	char pos_message[128];
 	char *found_mac = NULL;
-	char error_msg[] = "Cannot find beacon.";
-	char msg1[] = "\"BeaconID\"", msg2[] = "\"Sussess\"", msg3[] = "\"Message\""; 
+	char error_msg[] = "\"Tag Not Found\"";
+	char msg1[] = "\"BeaconID\": ", msg2[] = "\"Sussess\": ", msg3[] = "\"Message\": ", msg4[] = "true", msg5[] = "false"; 
 	beacon_info_t *infos;
 	pos_list_t *list;
 
@@ -64,9 +64,8 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 				pos_message[0] = '{';
 				len = (int) strlen(msg1);
 				strncpy(pos_message+1, msg1, len);
-				pos_message[len+1] = ':';
-				pos_message[len+2] = ' ';
-				offset += (3+len); // ---{"BeaconID": ----
+
+				offset += (1+len); // ---{"BeaconID": ----
 
 				pos_message[offset] = '\"';
 				len = (int) strlen(beacon_id);
@@ -77,11 +76,21 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 				offset+=(4+len); // ---{"BeaconID": "example_beacon_id", ---
 
 				list = get_pos_list();
+				printf("asdsda\n");
 				pos_offset = get_pos_by_mac(list, found_mac, pos_message, offset);
 
 				if(pos_offset > offset){
 					printf("%s\n", pos_message);
 					offset = pos_offset;
+
+					len = strlen(msg2);
+					strncpy(pos_message+offset, msg2, len);
+					offset+=len;
+
+					len = strlen(msg4);
+					strncpy(pos_message+offset, msg4, len);
+					offset+=len;
+
 					pos_message[offset] = '}';
 					pos_message[offset+1] = 0;
 
@@ -97,15 +106,53 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			}
 		}
 		
-		if(i  == 0 || found_mac == NULL)
+		if(i  == 0 || found_mac == NULL || offset >= pos_offset)
 		{
+			offset = 0;
+			pos_message[0] = '{';
+			len = (int) strlen(msg1);
+			strncpy(pos_message+1, msg1, len);
+
+			offset += (1+len);
+			printf("%s\n", pos_message);
+			pos_message[offset] = '\"';
+			len = (int) strlen(beacon_id);
+			strncpy(pos_message+offset+1, beacon_id,len);
+			pos_message[1+offset+len]='\"';
+			pos_message[2+offset+len]=',';
+			pos_message[3+offset+len]=' ';
+			offset+=(4+len);
+			printf("%s\n", pos_message);
+
+			len = strlen(msg2);
+			strncpy(pos_message+offset, msg2, len);
+			offset+=len;
+			len = strlen(msg5);
+			strncpy(pos_message+offset, msg5, len);
+			offset+=len;
+			pos_message[offset]=',';
+			pos_message[offset+1]=' ';
+			offset+=2;
+			printf("%s\n", pos_message);
+
+			len = strlen(msg3);
+			strncpy(pos_message+offset, msg3, len);
+			offset+=len;
+			len = strlen(error_msg);
+			strncpy(pos_message+offset,error_msg, len);
+			offset+=len;
+			printf("%s\n", pos_message);
+
+			pos_message[offset] = '}';
+			pos_message[offset+1] = 0;
+
 			mg_printf(c,
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Type: application/json\r\n"
 				"Content-Length: %d\r\n"
 				"\r\n"
 				"%s",
-				(int) strlen(error_msg), error_msg);
+				(int) strlen(pos_message), pos_message);
 		}else{
 
 		}
@@ -139,7 +186,10 @@ void *start_pos_output_thread(void *arg){
 	start_web_server();
 }
 
-//this is deprecated because the api is migrated into this program..
+
+/*
+ *this is deprecated because the api is migrated into this program..
+
 void handle_output_connection(pos_list_t *pos_list, int connfd){
 	int len, offset=0;
 	char recv_buf[32];
@@ -162,7 +212,6 @@ void handle_output_connection(pos_list_t *pos_list, int connfd){
 	}
 }
 
-/*
 void *start_pos_output_thread(void *arg){
 	struct sockaddr_in serv_addr;
 	int listen_fd;

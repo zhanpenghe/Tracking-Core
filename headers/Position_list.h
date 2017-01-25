@@ -287,24 +287,22 @@ int get_pos_by_mac(pos_list_t *list,char *mac, char *buf, int offset)
 			strncpy(buf+offset, x_str, strlen(x_str));
 			offset+=(int)strlen(x_str);
 
-			buf[offset] = '\"';
 			sprintf(temp,"%d", (int)average.x);
-			strncpy(buf+offset+1, temp, strlen(temp));
+			strncpy(buf+offset, temp, strlen(temp));
 			len = (int)strlen(temp);
-			buf[offset+len+1] = '\"';
-			buf[offset+len+2] = ',';
-			buf[offset+len+3] = ' ';		
-			offset+=(len+4);
+			buf[offset+len] = ',';
+			buf[offset+len+1] = ' ';		
+			offset+=(len+2);
 
 			strncpy(buf+offset, y_str, strlen(y_str));
 			offset+=(int)strlen(y_str);
 
-			buf[offset] = '\"';
 			sprintf(temp,"%d", (int)average.y);
 
-			strncpy(buf+offset+1, temp, strlen(temp));
+			strncpy(buf+offset, temp, strlen(temp));
 			len = (int)strlen(temp);
-			buf[offset+len+1] = '\"';
+			buf[offset+len] = ',';
+			buf[offset+len+1] = ' ';
 			offset+=(len+2);
 
 			buf[offset] = 0;

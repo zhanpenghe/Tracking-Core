@@ -100,7 +100,7 @@ def calc_orth(start,end,ratio):
         else:
             return [1,[a/float(mid_scalar),b/float(mid_scalar)]]
 
-rssi_list = [['BC', -52], ['FB', -55], ['8D', -55]]
+rssi_list = [['BC', -69], ['FB', -69], ['8D', -76]]
 a_dict = {}
 
 a_dict['BC'] = [663, 91]
