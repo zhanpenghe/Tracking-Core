@@ -42,12 +42,14 @@ int get_beacon_name_from_url(char *str, char *beacon_id)
 }
 
 static void ev_handler(struct mg_connection *c, int ev, void *p) {
-	int i;
+	int i, offset = 0, pos_offset = 0, len = 0;
 	char beacon_id[32];
-	char mac[17];
+	char pos_message[128];
 	char *found_mac = NULL;
-	char error_msg[] = "Please provide a valid beacon id.";
+	char error_msg[] = "Cannot find beacon.";
+	char msg1[] = "\"BeaconID\"", msg2[] = "\"Sussess\"", msg3[] = "\"Message\""; 
 	beacon_info_t *infos;
+	pos_list_t *list;
 
 	if (ev == MG_EV_HTTP_REQUEST) {
 		struct http_message *hm = (struct http_message *) p;
@@ -59,22 +61,45 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			found_mac = get_beacon_mac_addr(beacon_id);
 
 			if(found_mac != NULL){
-				strncpy(mac, found_mac, 17);
-				mac[17] = 0;
-				mg_printf(c,
-					"HTTP/1.1 200 OK\r\n"
-					"Content-Type: application/json\r\n"
-					"Content-Length: %d\r\n"
-					"\r\n"
-					"%s",
-					17, mac);
-				return;
+				pos_message[0] = '{';
+				len = (int) strlen(msg1);
+				strncpy(pos_message+1, msg1, len);
+				pos_message[len+1] = ':';
+				pos_message[len+2] = ' ';
+				offset += (3+len); // ---{"BeaconID": ----
+
+				pos_message[offset] = '\"';
+				len = (int) strlen(beacon_id);
+				strncpy(pos_message+offset+1, beacon_id,len);
+				pos_message[1+offset+len]='\"';
+				pos_message[2+offset+len]=',';
+				pos_message[3+offset+len]=' ';
+				offset+=(4+len); // ---{"BeaconID": "example_beacon_id", ---
+
+				list = get_pos_list();
+				pos_offset = get_pos_by_mac(list, found_mac, pos_message, offset);
+
+				if(pos_offset > offset){
+					printf("%s\n", pos_message);
+					offset = pos_offset;
+					pos_message[offset] = '}';
+					pos_message[offset+1] = 0;
+
+					mg_printf(c,
+						"HTTP/1.1 200 OK\r\n"
+						"Content-Type: application/json\r\n"
+						"Content-Length: %d\r\n"
+						"\r\n"
+						"%s",
+						(int)strlen(pos_message), pos_message);
+					return;
+				}
 			}
 		}
 		
 		if(i  == 0 || found_mac == NULL)
 		{
-			mg_printf(c, 
+			mg_printf(c,
 				"HTTP/1.1 200 OK\r\n"
 				"Content-Type: application/json\r\n"
 				"Content-Length: %d\r\n"
@@ -110,7 +135,6 @@ int start_web_server() {
 	return 0;
 }
 
-
 void *start_pos_output_thread(void *arg){
 	start_web_server();
 }
@@ -137,6 +161,7 @@ void handle_output_connection(pos_list_t *pos_list, int connfd){
 		}
 	}
 }
+
 /*
 void *start_pos_output_thread(void *arg){
 	struct sockaddr_in serv_addr;

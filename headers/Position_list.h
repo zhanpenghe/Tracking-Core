@@ -265,4 +265,56 @@ void get_pos(pos_list_t *list, char *buf, int *length)
 
 }
 
+int get_pos_by_mac(pos_list_t *list,char *mac, char *buf, int offset)
+{
+	b_pos_t *curr;
+	point_t average;
+	int len =0;
+	char temp[11];
+	char x_str[] = "\"x\": ", y_str[] = "\"y\": ";
+
+	if(list == NULL) return 0;
+	
+	pthread_mutex_lock(&list->lock);
+	printf("\n-----\n[INFO] Start retreving position\n");
+	curr = list->head;
+	while(curr!=NULL)
+	{
+		if(strcmp(curr->mac, mac) == 0 && curr->size > 0){
+			get_average_pos(curr, &average);
+			printf("%s: %d, %d\n", curr->mac, (int)average.x, (int)average.y);
+
+			strncpy(buf+offset, x_str, strlen(x_str));
+			offset+=(int)strlen(x_str);
+
+			buf[offset] = '\"';
+			sprintf(temp,"%d", (int)average.x);
+			strncpy(buf+offset+1, temp, strlen(temp));
+			len = (int)strlen(temp);
+			buf[offset+len+1] = '\"';
+			buf[offset+len+2] = ',';
+			buf[offset+len+3] = ' ';		
+			offset+=(len+4);
+
+			strncpy(buf+offset, y_str, strlen(y_str));
+			offset+=(int)strlen(y_str);
+
+			buf[offset] = '\"';
+			sprintf(temp,"%d", (int)average.y);
+
+			strncpy(buf+offset+1, temp, strlen(temp));
+			len = (int)strlen(temp);
+			buf[offset+len+1] = '\"';
+			offset+=(len+2);
+
+			buf[offset] = 0;
+			break;
+		}
+		curr = curr->next;
+	}
+	printf("[INFO] Done\n-----\n");
+	pthread_mutex_unlock(&list->lock);
+	return offset;
+}
+
 
