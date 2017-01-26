@@ -15,6 +15,7 @@ void bound(pos_t *pos)
 		}
 	}else if(pos->room == 2)
 	{
+		printf("asfsa\n");
 		if(pos->loc.x < 723) pos->loc.x = 723;
 		if(pos->loc.x > 1293) pos->loc.x = 1293;
 		if(pos->loc.y < 60) pos->loc.y = 60;
@@ -68,7 +69,7 @@ void zone_adjust(pos_t *pos)
 			pos->loc.y = 200;
 		}else{
 			pos->loc.x = 1050;
-			pos->loc.x = 200;
+			pos->loc.y = 200;
 		}
 	}else if(pos->room == 3){
 		if(pos->loc.x <= 1100){
@@ -76,7 +77,7 @@ void zone_adjust(pos_t *pos)
 			pos->loc.y = 430;
 		}else{
 			pos->loc.x = 1253;
-			pos->loc.x = 430;
+			pos->loc.y = 430;
 		}
 	}else if(pos->room == 4){
 		if(pos->loc.x <= 1350){
@@ -87,7 +88,7 @@ void zone_adjust(pos_t *pos)
 			pos->loc.y = 490;
 		}else{
 			pos->loc.x = 1500;
-			pos->loc.x = 730;
+			pos->loc.y = 730;
 		}
 	}else if(pos->room == 5){
 		if(pos->loc.x <= 1950 && pos->loc.y <= 630){

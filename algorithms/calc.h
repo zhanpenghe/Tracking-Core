@@ -39,6 +39,7 @@ void calculate(calc_prep_t *prep, pos_t *result)
 	line_t l01, l02, l12;
 	if(prep == NULL || result == NULL) return;
 
+	result->room = prep->room;
 	// init everything to calculate
 	set_point(&p0, (int)prep->infos[prep->info_indexes[0]].x, (int)prep->infos[prep->info_indexes[0]].y);
 	set_point(&p1, (int)prep->infos[prep->info_indexes[1]].x, (int)prep->infos[prep->info_indexes[1]].y);

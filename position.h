@@ -182,7 +182,6 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 				calculate(&prep, pos);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				adjust(pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
-				printf("a: %f\tb: %f\tc: %f\td: %f\n",  room_infos[room].a, room_infos[room].b, room_infos[room].c, room_infos[room].d);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				zone_adjust(pos);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
