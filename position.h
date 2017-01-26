@@ -52,16 +52,17 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 	//sort the first 3..
 	max_index = pairs[0].rssi > pairs[1].rssi ? 0 :1;
 	second_max_index = max_index == 0? 1: 0;
-	if(pairs[2].rssi > pairs[second_max_index].rssi){
+	
+	if(pairs[2].rssi < pairs[second_max_index].rssi){
 		third_max_index = 2;
 	}else if(pairs[2].rssi > pairs[max_index].rssi)
 	{
 		third_max_index = second_max_index;
-		second_max_index = 2;
-	}else{
-		third_max_index = second_max_index;
 		second_max_index = max_index;
 		max_index = 2;
+	}else{
+		third_max_index = second_max_index;
+		second_max_index = 2;
 	}
 	i = 3;
 
@@ -90,7 +91,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 	info1 = get_info_from_mac(infos, pairs[max_index].mac, agent_num);
 	info2 = get_info_from_mac(infos, pairs[second_max_index].mac, agent_num);
 	info3 = get_info_from_mac(infos, pairs[third_max_index].mac, agent_num);
-
+	printf("%d..%d..%d\n", infos[info1].room_id, infos[info2].room_id, infos[info3].room_id);
 	// fill all the information needed to compute the position
 	if(infos[info1].room_id == infos[info2].room_id){
 		prep->room = infos[info1].room_id;
@@ -127,7 +128,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 		return -1;
 	}
 	if(infos[info2].room_id == infos[info3].room_id){
-		prep->room = infos[info1].room_id;
+		prep->room = infos[info2].room_id;
 		prep->info_indexes[0] = info2;
 		prep->info_indexes[1] = info3;
 		prep->rssi[0] = pairs[second_max_index].rssi;
@@ -165,14 +166,14 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 		//calc position here
 		if(curr->size >= 3){
 			get_rssi_for_calc(curr, rssi_pairs, agent_num);
-			printf("\nCurrent beacon:\n");
+			/*printf("\nCurrent beacon:\n");
 			print_beacon(curr);
 			printf("Data get from beacon:\n");
 			for(i=0; i<agent_num; i++)
 			{
 				if(rssi_pairs[i].rssi == 0) continue;
 				printf("%s: %d\n", rssi_pairs[i].mac, rssi_pairs[i].rssi);
-			}
+			}*/
 			room = get_room_num(rssi_pairs, infos, agent_num, &prep);
 			if(room == -1) printf("SOMETHING WRONG WITH ROOM CALC\n");
 			else{// calculate position
@@ -180,7 +181,8 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 				pos = (pos_t *) malloc(sizeof(pos_t));
 				calculate(&prep, pos);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
-				adjust(pos, room_infos[room].a, room_infos[room].b, room_infos[room].c, room_infos[room].d);
+				adjust(pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
+				printf("a: %f\tb: %f\tc: %f\td: %f\n",  room_infos[room].a, room_infos[room].b, room_infos[room].c, room_infos[room].d);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				zone_adjust(pos);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);

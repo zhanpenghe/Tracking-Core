@@ -197,11 +197,13 @@ void set_out(rssi_queue_t *q)
 
 	if(q == NULL) return;
 	if(q->head == NULL || q->size == 0) return;
-	if(q->size == 1 && q->head != NULL){
+	if(q->size == 1 && q->head != NULL && q->out>0){
+		printf("afa\n");
 		q->out = q->head->rssi;
 		return;
 	}
 
+	printf("out..%d\n", q->out);
 	curr = q->head;
 	temp = curr->rssi;
 	while(curr != NULL)
@@ -209,8 +211,8 @@ void set_out(rssi_queue_t *q)
 		if(curr->rssi > temp) temp = curr->rssi;
 		curr = curr->next;
 	}
-
-	if(q->size<q->max)
+	printf("max %d\n", temp);
+	if(q->out>0)
 	{
 		q->out = temp;
 	}else{
@@ -363,7 +365,7 @@ void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac, int q_max)
 	temp = (rssi_queue_t *) malloc(sizeof(rssi_queue_t));
 	init_rssi_queue(temp, mac, q_max);
 
-	enqueue(temp,r);
+	add_rssi_to_q(temp,r);
 
 	b->tail->next = temp;
 	b->tail = temp;

@@ -76,11 +76,9 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 				offset+=(4+len); // ---{"BeaconID": "example_beacon_id", ---
 
 				list = get_pos_list();
-				printf("asdsda\n");
 				pos_offset = get_pos_by_mac(list, found_mac, pos_message, offset);
 
 				if(pos_offset > offset){
-					printf("%s\n", pos_message);
 					offset = pos_offset;
 
 					len = strlen(msg2);
@@ -93,6 +91,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 
 					pos_message[offset] = '}';
 					pos_message[offset+1] = 0;
+					printf("%s\n", pos_message);
 
 					mg_printf(c,
 						"HTTP/1.1 200 OK\r\n"
@@ -114,7 +113,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			strncpy(pos_message+1, msg1, len);
 
 			offset += (1+len);
-			printf("%s\n", pos_message);
+			//printf("%s\n", pos_message);
 			pos_message[offset] = '\"';
 			len = (int) strlen(beacon_id);
 			strncpy(pos_message+offset+1, beacon_id,len);
@@ -122,7 +121,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			pos_message[2+offset+len]=',';
 			pos_message[3+offset+len]=' ';
 			offset+=(4+len);
-			printf("%s\n", pos_message);
+			//printf("%s\n", pos_message);
 
 			len = strlen(msg2);
 			strncpy(pos_message+offset, msg2, len);
@@ -133,7 +132,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			pos_message[offset]=',';
 			pos_message[offset+1]=' ';
 			offset+=2;
-			printf("%s\n", pos_message);
+			//printf("%s\n", pos_message);
 
 			len = strlen(msg3);
 			strncpy(pos_message+offset, msg3, len);
@@ -141,10 +140,10 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 			len = strlen(error_msg);
 			strncpy(pos_message+offset,error_msg, len);
 			offset+=len;
-			printf("%s\n", pos_message);
 
 			pos_message[offset] = '}';
 			pos_message[offset+1] = 0;
+			//printf("%s\n", pos_message);
 
 			mg_printf(c,
 				"HTTP/1.1 200 OK\r\n"
