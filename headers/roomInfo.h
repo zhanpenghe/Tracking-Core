@@ -15,7 +15,7 @@ int get_room_count(param_slist_t *list)
 {
 	int result = 0;
 	init_param_slist(list);
-	read_param_file("parameters/list_room.txt", list);
+	read_param_file("./parameters/list_room.txt", list);
 	result = list->size;
 	return result;
 }

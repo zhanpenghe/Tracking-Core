@@ -26,9 +26,9 @@ void main(){
 	prep.info_indexes[0] = 3;
 	prep.info_indexes[1] = 4;
 	prep.info_indexes[2] = 5;
-	prep.rssi[0] = -53;
-	prep.rssi[1] = -79;
-	prep.rssi[2] = -83;
+	prep.rssi[0] = -44;
+	prep.rssi[1] = -45;
+	prep.rssi[2] = -35;
 	prep.room = 2;
 
 	pos_t pos;

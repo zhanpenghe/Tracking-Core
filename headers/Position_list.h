@@ -116,7 +116,7 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 {
 	pos_t *temp;
 	if(b == NULL || p == NULL) return;
-	printf("add b\n");
+
 	p->next = NULL;
 	if(b->head == NULL)
 	{
@@ -127,7 +127,6 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 	}
 
 	if(b->size >= b->max){
-
 		temp = b->head;
 		b->head = b->head->next;
 		
@@ -151,7 +150,6 @@ void add_pos_to_list(pos_list_t *list, pos_t *pos, char *mac, int buf_size)
 	if(list->head == NULL){
 		temp = (b_pos_t *)malloc(sizeof(b_pos_t));
 		init_b_pos(temp, mac, buf_size);
-
 		add_pos_to_beacon(temp, pos);
 
 		list->head = temp;
@@ -193,14 +191,14 @@ void add_pos_info_to_list(pos_list_t *list, int x, int y, char *mac, int room)
 	pos = (pos_t *)malloc(sizeof(pos_t));
 	init_pos(pos, x, y, room);
 
-	add_pos_to_list(list, pos, mac, 10);
+	add_pos_to_list(list, pos, mac, 5);
 }
 
-void get_average_pos(b_pos_t *b, point_t *result)
+void get_average_pos(b_pos_t *b, pos_t *result)
 {
 	pos_t *curr;
-	result->x = 0;
-	result->y = 0;
+	result->loc.x = 0;
+	result->loc.y = 0;
 
 	if(b == NULL) return;
 
@@ -208,18 +206,20 @@ void get_average_pos(b_pos_t *b, point_t *result)
 	while(curr != NULL)
 	{
 		printf("x:%f, y:%f\n", curr->loc.x, curr->loc.y);
-		result->x += curr->loc.x;
-		result->y += curr->loc.y;
+		result->room = curr->room;
+		result->loc.x += curr->loc.x;
+		result->loc.y += curr->loc.y;
 		curr = curr->next;
 	}
-	result->x /= b->size;
-	result->y /= b->size;
+	printf("x_sum: %f, y_sum: %f, size: %d\n", result->loc.x, result->loc.y, b->size);
+	result->loc.x /= b->size;
+	result->loc.y /= b->size;
 }
-
+/*
 void get_pos(pos_list_t *list, char *buf, int *length)
 {
 	b_pos_t *curr;
-	point_t average;
+	pos_t average;
 	int i = 0, offset = 0, len = 0;
 	char temp[11];
 
@@ -235,8 +235,8 @@ void get_pos(pos_list_t *list, char *buf, int *length)
 		buf[offset+17] = '|';
 		offset+=18;
 		get_average_pos(curr, &average);
-		printf("%f|%f... %d|%d\n", average.x, average.y, (int) average.x, (int) average.y);
-		sprintf(temp,"%d", (int)average.x);
+		printf("%f|%f... %d|%d\n", average.loc.x, average.loc.y, (int) average.loc.x, (int) average.loc.y);
+		sprintf(temp,"%d", (int)average.loc.x);
 		len = strlen(temp);
 		//printf("%s..%d\n", temp, len);
 		strncpy(buf+offset, temp, len);
@@ -244,7 +244,7 @@ void get_pos(pos_list_t *list, char *buf, int *length)
 		buf[offset] = '|';
 		offset++;
 
-		sprintf(temp,"%d", (int)average.y);
+		sprintf(temp,"%d", (int)average.loc.y);
 		len = strlen(temp);
 		//printf("%s..%d\n", temp, len);
 		strncpy(buf+offset, temp, len);
@@ -264,41 +264,106 @@ void get_pos(pos_list_t *list, char *buf, int *length)
 	pthread_mutex_unlock(&list->lock);
 
 }
+*/
+void zone_adjust(pos_t *pos)
+{
+	if(pos == NULL) return;
+
+	if(pos->room == 1){
+		if(pos->loc.x <= 370 && pos->loc.y <= 220){
+			pos->loc.x = 200;
+			pos->loc.y = 160;
+		}else if(pos->loc.x <= 370 && pos->loc.y >= 220){
+			pos->loc.x = 200;
+			pos->loc.y = 260;
+		}else if(pos->loc.x > 350){
+			pos->loc.x = 450;
+			pos->loc.y = 229;
+		}else{
+			pos->loc.x = 247;
+			pos->loc.y = 184;
+		}
+	}else if(pos->room == 2){
+		if(pos->loc.x <= 930){
+			pos->loc.x = 800;
+			pos->loc.y = 200;
+		}else{
+			pos->loc.x = 1050;
+			pos->loc.y = 200;
+		}
+	}else if(pos->room == 3){
+		if(pos->loc.x <= 1100){
+			pos->loc.x = 950;
+			pos->loc.y = 430;
+		}else{
+			pos->loc.x = 1253;
+			pos->loc.y = 430;
+		}
+	}else if(pos->room == 4){
+		if(pos->loc.x <= 1350){
+			pos->loc.x = 1250;
+			pos->loc.y = 650;
+		}else if(pos->loc.x > 1359 && pos->loc.y <= 620){
+			pos->loc.x = 1500;
+			pos->loc.y = 490;
+		}else{
+			pos->loc.x = 1500;
+			pos->loc.y = 730;
+		}
+	}else if(pos->room == 5){
+		if(pos->loc.x <= 1950 && pos->loc.y <= 630){
+			pos->loc.x = 1760;
+			pos->loc.y = 490;
+		}else if(pos->loc.x > 1950 && pos->loc.y >= 630){
+			pos->loc.x = 2000;
+			pos->loc.y = 490;
+		}else if(pos->loc.x <= 1950 && pos->loc.y > 630){
+			pos->loc.x = 1760;
+			pos->loc.y = 730;
+		}else{
+			pos->loc.x = 2000;
+			pos->loc.y = 730;
+		}
+	}
+}
+
 
 int get_pos_by_mac(pos_list_t *list,char *mac, char *buf, int offset)
 {
 	b_pos_t *curr;
-	point_t average;
+	pos_t average;
 	int len =0;
 	char temp[11];
-	char x_str[] = "\"x\": ", y_str[] = "\"y\": ";
+	char x_str[] = "\"X\": ", y_str[] = "\"Y\": ";
 
 	if(list == NULL) return 0;
 	
 	pthread_mutex_lock(&list->lock);
-	printf("\n-----\n[INFO] Start retreving position\n");
+	printf("\n[INFO] Start retreving position\n");
 	curr = list->head;
 	while(curr!=NULL)
 	{
 		if(strcmp(curr->mac, mac) == 0 && curr->size > 0){
 			get_average_pos(curr, &average);
-			printf("%s: %d, %d\n", curr->mac, (int)average.x, (int)average.y);
+			zone_adjust(&average);
 
-			strncpy(buf+offset, x_str, strlen(x_str));
-			offset+=(int)strlen(x_str);
-
-			sprintf(temp,"%d", (int)average.x);
-			strncpy(buf+offset, temp, strlen(temp));
-			len = (int)strlen(temp);
-			buf[offset+len] = ',';
-			buf[offset+len+1] = ' ';		
-			offset+=(len+2);
+			printf("%s: %d, %d\n", curr->mac, (int)average.loc.x, (int)average.loc.y);
 
 			strncpy(buf+offset, y_str, strlen(y_str));
 			offset+=(int)strlen(y_str);
 
-			sprintf(temp,"%d", (int)average.y);
+			sprintf(temp,"%d", (int)average.loc.y);
 
+			strncpy(buf+offset, temp, strlen(temp));
+			len = (int)strlen(temp);
+			buf[offset+len] = ',';
+			buf[offset+len+1] = ' ';
+			offset+=(len+2);
+
+			strncpy(buf+offset, x_str, strlen(x_str));
+			offset+=(int)strlen(x_str);
+
+			sprintf(temp,"%d", (int)average.loc.x);
 			strncpy(buf+offset, temp, strlen(temp));
 			len = (int)strlen(temp);
 			buf[offset+len] = ',';
@@ -310,7 +375,7 @@ int get_pos_by_mac(pos_list_t *list,char *mac, char *buf, int offset)
 		}
 		curr = curr->next;
 	}
-	printf("[INFO] Done\n-----\n");
+	printf("[INFO] Done\n");
 	pthread_mutex_unlock(&list->lock);
 	return offset;
 }

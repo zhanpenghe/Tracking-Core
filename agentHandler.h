@@ -123,6 +123,8 @@ void remove_agent_connection(agent_list_t *list, agent_t *agent)
 	agent_t *curr, *next, *prev = NULL;
 	if(list == NULL || agent == NULL) return;
 
+	pthread_mutex_lock(&list->lock);
+
 	curr = list->head;
 	while(curr != NULL){
 		next = curr->next;
@@ -159,6 +161,8 @@ void remove_agent_connection(agent_list_t *list, agent_t *agent)
 		prev = curr;
 		curr = next;
 	}
+	pthread_mutex_unlock(&list->lock);
+
 }
 
 //only print out the measurement to console

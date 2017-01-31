@@ -1,5 +1,5 @@
 #include "../headers/beaconInfo.h"
-#include "ajustment.h"
+#include "adjustment.h"
 
 typedef struct calc_prep
 {

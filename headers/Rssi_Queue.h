@@ -23,13 +23,13 @@
 #include <string.h>
 
 typedef struct rssi_pair{
-	int8_t rssi;
+	int rssi;
 	char mac[18];	//agent mac addr
 }rssi_pair_t;
 
 typedef struct rssi
 {
-	int8_t rssi;
+	int rssi;
 	struct rssi *next;
 }rssi_t;
 
@@ -47,6 +47,7 @@ typedef struct rssi_queue
 typedef struct beacon{
 	rssi_queue_t *head;
 	rssi_queue_t *tail;
+	int8_t flag;
 	char mac[18];
 	struct beacon *next;
 	int size;
@@ -65,7 +66,7 @@ typedef struct blist{
 }blist_t;
 
 /**********************init and free operations*********************/
-void init_rssi(rssi_t *r, int8_t rssi_val)
+void init_rssi(rssi_t *r, int rssi_val)
 {
 	if(r == NULL) return;
 
@@ -115,6 +116,7 @@ void init_beacon(beacon_t *b, char *mac)
 	b->tail = NULL;
 	b->next = NULL;
 	b->size = 0;
+	b->flag = 0;
 	strncpy(b->mac, mac, 17);
 	b->mac[17] = 0;
 }
@@ -315,28 +317,29 @@ void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
 		memset(pairs, 0, sizeof(rssi_pair_t)*agent_num);
 		return;
 	}
-
-	curr = b->head;
-	while(curr != NULL)
-	{
-		get_rssi_from_q(curr, &pairs[i]);
-		curr = curr->next;
-		i++;
+	printf("[FLAG]--%d---\n", b->flag);
+	if(b->flag == 1){
+		curr = b->head;
+		while(curr != NULL)
+		{
+			get_rssi_from_q(curr, &pairs[i]);
+			curr = curr->next;
+			i++;
+		}
+		b->flag = 0;
+		if(i != b->size) printf("ERROR WHEN GETTING RSSI FROM BLIST!!!!!!\n");
 	}
-
-	if(i != b->size) printf("ERROR WHEN GETTING RSSI FROM BLIST!!!!!!\n");
-
-	if(b->size < agent_num)
-		memset(&pairs[b->size], 0, sizeof(rssi_pair_t)*(agent_num - b->size));
+	if(i < agent_num)
+		memset(&pairs[i], 0, sizeof(rssi_pair_t)*(agent_num - i));
 }
 
 
-void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac, int q_max)
+void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max)
 {
 	rssi_queue_t *temp;
 	rssi_t *r;
 	if(b == NULL) return;
-
+	b->flag =1;
 	r = (rssi_t *) malloc(sizeof(rssi_t));
 	init_rssi(r, rssi_val);
 
@@ -372,7 +375,7 @@ void add_rssi_to_beacon(beacon_t *b, int8_t rssi_val, char *mac, int q_max)
 	b->size+=1;
 }
 
-void add_rssi_to_blist(blist_t *list, int8_t rssi_val, char *agent_mac, char *beacon_mac)
+void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beacon_mac)
 {
 	beacon_t *temp;
 	if(list == NULL || agent_mac == NULL || beacon_mac == NULL) return;

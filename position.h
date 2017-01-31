@@ -1,5 +1,7 @@
+#include <unistd.h>
+#include "./algorithms/calc.h"
 #include "agentHandler.h"
-#include "algorithms/calc.h"
+
 
 //store all info that is needed to calculate postions
 typedef struct pos_calc
@@ -48,6 +50,7 @@ int get_room_num(rssi_pair_t pairs[], agent_info_t infos[], int agent_num, calc_
 	int max_index, second_max_index, third_max_index;
 	int info1, info2, info3;
 	if(agent_num < 3) return -1;
+	else if(pairs[0].rssi>=0) return -1;
 
 	//sort the first 3..
 	max_index = pairs[0].rssi > pairs[1].rssi ? 0 :1;
@@ -183,11 +186,11 @@ void calc_all_beacon_pos(blist_t *list, int agent_num, agent_info_t infos[], roo
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				adjust(pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
 				printf("%f..%f\n", pos->loc.x, pos->loc.y);
-				zone_adjust(pos);
-				printf("%f..%f\n", pos->loc.x, pos->loc.y);
+				//zone_adjust(pos);
+				//printf("%f..%f\n", pos->loc.x, pos->loc.y);
 				printf("DONE WITH CALC\n");
 				pthread_mutex_lock(&pos_list->lock);
-				add_pos_to_list(pos_list, pos, curr->mac, 10);
+				add_pos_to_list(pos_list, pos, curr->mac, 3);
 				pthread_mutex_unlock(&pos_list->lock);
 			}
 		}else{
@@ -232,7 +235,7 @@ void *pos_generation(void *arg)
 
 	while(1)
 	{
-		sleep(1);
+		usleep(50);
 		calc_all_beacon_pos(list, agent_num, infos, room_infos, pos_list);
 	}
 }

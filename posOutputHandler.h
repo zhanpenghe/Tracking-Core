@@ -42,12 +42,12 @@ int get_beacon_name_from_url(char *str, char *beacon_id)
 }
 
 static void ev_handler(struct mg_connection *c, int ev, void *p) {
-	int i, offset = 0, pos_offset = 0, len = 0;
+	int i, offset = 1, pos_offset = 0, len = 0;
 	char beacon_id[32];
 	char pos_message[128];
 	char *found_mac = NULL;
 	char error_msg[] = "\"Tag Not Found\"";
-	char msg1[] = "\"BeaconID\": ", msg2[] = "\"Sussess\": ", msg3[] = "\"Message\": ", msg4[] = "true", msg5[] = "false"; 
+	char msg1[] = "\"BeaconID\": ", msg2[] = "\"Success\": ", msg3[] = "\"Message\": ", msg4[] = "true", msg5[] = "false"; 
 	beacon_info_t *infos;
 	pos_list_t *list;
 
@@ -62,25 +62,28 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 
 			if(found_mac != NULL){
 				pos_message[0] = '{';
-				len = (int) strlen(msg1);
-				strncpy(pos_message+1, msg1, len);
-
-				offset += (1+len); // ---{"BeaconID": ----
-
-				pos_message[offset] = '\"';
-				len = (int) strlen(beacon_id);
-				strncpy(pos_message+offset+1, beacon_id,len);
-				pos_message[1+offset+len]='\"';
-				pos_message[2+offset+len]=',';
-				pos_message[3+offset+len]=' ';
-				offset+=(4+len); // ---{"BeaconID": "example_beacon_id", ---
-
+				
+				//x, y
 				list = get_pos_list();
 				pos_offset = get_pos_by_mac(list, found_mac, pos_message, offset);
 
 				if(pos_offset > offset){
 					offset = pos_offset;
+					//beacon id
+					len = (int) strlen(msg1);
+					strncpy(pos_message+offset, msg1, len);
 
+					offset += len; 
+
+					pos_message[offset] = '\"';
+					len = (int) strlen(beacon_id);
+					strncpy(pos_message+offset+1, beacon_id,len);
+					pos_message[1+offset+len]='\"';
+					pos_message[2+offset+len]=',';
+					pos_message[3+offset+len]=' ';
+					offset+=(4+len);
+
+					//success
 					len = strlen(msg2);
 					strncpy(pos_message+offset, msg2, len);
 					offset+=len;
@@ -143,7 +146,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *p) {
 
 			pos_message[offset] = '}';
 			pos_message[offset+1] = 0;
-			//printf("%s\n", pos_message);
+			printf("%s\n", pos_message);
 
 			mg_printf(c,
 				"HTTP/1.1 200 OK\r\n"
