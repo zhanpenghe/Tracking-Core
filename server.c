@@ -12,7 +12,7 @@
 #include "posOutputHandler.h"
 
 int listenfd = 0; //file descriptors
-int port = 9999; //default port
+int port = 9000; //default port
 int agent_num = 0;
 int room_num = 0;
 int beacon_num = 0;
@@ -22,9 +22,11 @@ logger_t *logger;
 
 //data structures
 agent_list_t *agent_list;	// agent handlers 
-pos_calc_t *info_for_calculation;	//information for calculation
+//pos_calc_t *info_for_calculation;	//information for calculation
 blist_t *list;	//store all the rssi
 pos_list_t *position_list;	//store all the position
+
+info_for_calc_t info_for_calc;
 
 beacon_info_t *beacon_infos;
 
@@ -91,8 +93,13 @@ int main(int argc, char **argv)
 	gethostname(hostname, sizeof(hostname));
 	printf("[INFO] Local Machine Hostname: %s\n", hostname);
 
+	info_for_calc.room_infos = room_infos;
+	info_for_calc.agent_infos = agent_infos;
+	info_for_calc.agent_num = agent_num;
+	info_for_calc.pos_list = position_list;
+
 	//start calculation thread
-	start_calculation_thread(agent_infos, room_infos);
+	//start_calculation_thread(agent_infos, room_infos);
 	//start API
 	start_output_thread();
 
@@ -155,7 +162,7 @@ void SIGINT_Handler(int sig)
 	pthread_mutex_unlock(&list->lock);
 
 	//pthread_mutex_lock(&position_list->lock);
-	free(info_for_calculation);
+	//free(info_for_calculation);
 	free_logger(logger);
 	printf("[INFO] Logger is freed.\n");
 	print_blist(list);
@@ -194,7 +201,7 @@ int start_server_thread()
 
 	return listenfd;
 }
-
+/*
 void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 {
 	pthread_t tid;
@@ -212,7 +219,7 @@ void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 
 	printf("[INFO] Calcultion thread started\n");
 }
-
+*/
 void start_output_thread()
 {
 	pthread_t tid;
@@ -239,6 +246,7 @@ void agent_thread_init(int connfd)
 	albl.logger = logger;	//logger for I/O
 	albl.list = list;	//blist
 	albl.agent_list = agent_list; //all the agent threads
+	albl.infos_for_calc = &info_for_calc;
 
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&albl);
 

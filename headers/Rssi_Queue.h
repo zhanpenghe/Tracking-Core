@@ -22,10 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct rssi_pair{
-	int rssi;
-	char mac[18];	//agent mac addr
-}rssi_pair_t;
+#include "../algorithms/calc.h"
 
 typedef struct rssi
 {
@@ -52,6 +49,13 @@ typedef struct beacon{
 	struct beacon *next;
 	int size;
 }beacon_t;
+
+typedef struct info_for_calc{
+	room_info_t *room_infos;
+	agent_info_t *agent_infos;
+	pos_list_t *pos_list;
+	int agent_num;
+}info_for_calc_t;
 
 /*
  * This is totally a different thing from the blist in agent program.
@@ -333,8 +337,42 @@ void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
 		memset(&pairs[i], 0, sizeof(rssi_pair_t)*(agent_num - i));
 }
 
+//calculate position for a beacon and store it to position list
+void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], room_info_t room_infos[], int agent_num)
+{
+	int8_t room = -1, last_room = -1;
+	calc_prep_t prep;
+	pos_t *pos;
 
-void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max)
+	if(b == NULL) return;
+	printf("00\n");
+	if(b->size <= 3) return;
+	
+	printf("01\n");
+	rssi_pair_t rssi_pairs[agent_num];
+	prep.infos = infos;
+	printf("02\n");
+	get_rssi_for_calc(b, rssi_pairs, agent_num);
+	printf("03\n");
+	room = get_room_num(rssi_pairs, infos, agent_num, &prep);
+	printf("04\n");
+	if(room == -1) printf("NEED MORE INFO TO CALCULATE POSITION\n");
+	else{
+		print_prep(&prep);
+		pos = (pos_t *) malloc(sizeof(pos_t));
+		calculate(&prep, pos);
+		printf("%f..%f\n", pos->loc.x, pos->loc.y);
+		adjust(pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
+		printf("%f..%f\n", pos->loc.x, pos->loc.y);
+
+		pthread_mutex_unlock(&list->lock);
+		add_pos_to_list(list, pos, b->mac, 3);
+		pthread_mutex_unlock(&list->lock);
+	}
+}
+
+
+void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max, info_for_calc_t *infos)
 {
 	rssi_queue_t *temp;
 	rssi_t *r;
@@ -352,6 +390,7 @@ void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max)
 		b->head = temp;
 		b->tail = temp;
 		b->size = 1;
+		get_pos_for_beacon(b, infos->pos_list, infos->agent_infos, infos->room_infos, infos->agent_num);
 		return;
 	}
 
@@ -360,6 +399,7 @@ void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max)
 	{
 		if(strcmp(temp->mac, mac) == 0){
 			add_rssi_to_q(temp, r);
+			get_pos_for_beacon(b, infos->pos_list, infos->agent_infos, infos->room_infos, infos->agent_num);
 			return;
 		}
 		temp = temp->next;
@@ -373,9 +413,11 @@ void add_rssi_to_beacon(beacon_t *b, int rssi_val, char *mac, int q_max)
 	b->tail->next = temp;
 	b->tail = temp;
 	b->size+=1;
+	get_pos_for_beacon(b, infos->pos_list, infos->agent_infos, infos->room_infos, infos->agent_num);
+
 }
 
-void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beacon_mac)
+void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beacon_mac, info_for_calc_t *infos)
 {
 	beacon_t *temp;
 	if(list == NULL || agent_mac == NULL || beacon_mac == NULL) return;
@@ -383,7 +425,7 @@ void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beaco
 	if(list->head == NULL || list->size == 0){
 		temp = (beacon_t *) malloc(sizeof(beacon_t));
 		init_beacon(temp, beacon_mac);
-		add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max);
+		add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max, infos);
 
 		list->head = temp;
 		list->tail = temp;
@@ -396,7 +438,7 @@ void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beaco
 	{
 		if(strcmp(temp->mac, beacon_mac) == 0){
 			printf("%s,%s\n", temp->mac, beacon_mac);
-			add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max);
+			add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max, infos);
 			return;
 		}
 		temp = temp->next;
@@ -405,7 +447,7 @@ void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beaco
 	temp = (beacon_t *) malloc(sizeof(beacon_t));
 	init_beacon(temp, beacon_mac);
 	
-	add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max);
+	add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max, infos);
 	
 	list->tail->next = temp;
 	list->tail = temp;
@@ -453,39 +495,51 @@ void print_blist(blist_t *list)
 	}
 }
 
-void store_rssi_from_agent(blist_t *list, char *msg)
+void str_split(char *buf, char *agent_mac, blist_t *list, info_for_calc_t *infos)
+{
+	char *beacon_mac, *rssi_str, *temp;
+
+	temp = strtok_r(buf, "|", &buf);
+	beacon_mac = temp;
+	temp = strtok_r(NULL, "|", &buf);
+	rssi_str = temp;
+	temp = strtok_r(NULL,"|", &buf);
+	if(agent_mac == NULL || beacon_mac == NULL || temp == NULL) return;
+
+	//pthread_mutex_lock(&list->lock);
+	printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, temp);
+
+	printf("[INFO] Adding rssi to list..\n");
+	add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac, infos);	
+	print_blist(list);
+
+	//pthread_mutex_unlock(&list->lock);
+	printf("[INFO] Done with adding rssi to list\n");
+
+}
+
+void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 {
 	char *line, *temp;
 	char *beacon_mac, *rssi_str;
-
 	char agent_mac[18];
+	char buf[39];
 	if(list == NULL || msg == NULL) return;
 
 	strncpy(agent_mac, msg, 17);
 	agent_mac[17] = 0;
-	printf("%s\n", agent_mac);
+	//printf("%s\n", agent_mac);
 
 	line = strtok(msg,"\n");
+	//printf("%s\n", line);
 	while((line = strtok(NULL, "\n"))!=NULL)
 	{
-		//printf("%s\n", line);
-		temp = strtok(line, "|");
-		beacon_mac = temp;
-		temp = strtok(NULL, "|");
-		rssi_str = temp;
-		temp = strtok(NULL,"|");
-		line = temp;
-		if(agent_mac == NULL || beacon_mac == NULL || line == NULL) continue;
-		pthread_mutex_lock(&list->lock);
-		printf("%s|%s..%s..%s..\n", agent_mac,beacon_mac, rssi_str, line);
+		memcpy(buf, line, strlen(line));
+		buf[strlen(line)] = 0;
+		//printf("-----%s\n", buf);
 
-		printf("[INFO] Adding rssi to list..\n");
-		add_rssi_to_blist(list, atoi(rssi_str), agent_mac, beacon_mac);	
-		print_blist(list);
-
-		pthread_mutex_unlock(&list->lock);
-		printf("[INFO] Done with adding rssi to list\n");
-
+		str_split(buf, agent_mac, list, infos);
+		
 	}
 
 }

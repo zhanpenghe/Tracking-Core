@@ -30,6 +30,7 @@ typedef struct ALBL
 	logger_t *logger;
 	blist_t *list;
 	agent_list_t *agent_list;
+	info_for_calc_t *infos_for_calc;
 }agent_logger_blist_t;
 
 void setAgent(agent_t* agent, int con_fd, agent_t* next)
@@ -230,6 +231,7 @@ void* log_and_storeRSSIFromAgent(void *arg)
 	logger_t *logger = ((agent_logger_blist_t *) arg)->logger;
 	blist_t *list = ((agent_logger_blist_t *) arg)->list;
 	agent_list_t *agent_list = ((agent_logger_blist_t *) arg)->agent_list;
+	info_for_calc_t *infos = ((agent_logger_blist_t *) arg)->infos_for_calc;
 
 	pthread_t temp = pthread_self();
 
@@ -243,14 +245,18 @@ void* log_and_storeRSSIFromAgent(void *arg)
 
 	while((len = read(agent->con_fd, buf, sizeof(buf)-1))>0)
 	{
+		printf("get info of len: %d\n", len);
 		buf[len] = 0;
 		//this need to be changed later.... todo
 		pthread_mutex_lock(&logger->lock);
 		log_to_file(logger, buf, len);
 		log_to_file(logger, "\n", 1);
 		pthread_mutex_unlock(&logger->lock);
+		pthread_mutex_lock(&list->lock);
 
-		store_rssi_from_agent(list, buf);
+		printf("--\n%s\n--\n", buf);
+		store_rssi_from_agent(list, buf, infos);
+		pthread_mutex_unlock(&list->lock);
 
 		write(agent->con_fd, ret, 2);
 	}
