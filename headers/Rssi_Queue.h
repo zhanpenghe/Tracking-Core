@@ -204,12 +204,10 @@ void set_out(rssi_queue_t *q)
 	if(q == NULL) return;
 	if(q->head == NULL || q->size == 0) return;
 	if(q->size == 1 && q->head != NULL && q->out>0){
-		printf("afa\n");
 		q->out = q->head->rssi;
 		return;
 	}
 
-	printf("out..%d\n", q->out);
 	curr = q->head;
 	temp = curr->rssi;
 	while(curr != NULL)
@@ -217,7 +215,7 @@ void set_out(rssi_queue_t *q)
 		if(curr->rssi > temp) temp = curr->rssi;
 		curr = curr->next;
 	}
-	printf("max %d\n", temp);
+	
 	if(q->out>0)
 	{
 		q->out = temp;
@@ -345,17 +343,12 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 	pos_t *pos;
 
 	if(b == NULL) return;
-	printf("00\n");
 	if(b->size <= 3) return;
 	
-	printf("01\n");
 	rssi_pair_t rssi_pairs[agent_num];
 	prep.infos = infos;
-	printf("02\n");
 	get_rssi_for_calc(b, rssi_pairs, agent_num);
-	printf("03\n");
 	room = get_room_num(rssi_pairs, infos, agent_num, &prep);
-	printf("04\n");
 	if(room == -1) printf("NEED MORE INFO TO CALCULATE POSITION\n");
 	else{
 		print_prep(&prep);
@@ -437,7 +430,6 @@ void add_rssi_to_blist(blist_t *list, int rssi_val, char *agent_mac, char *beaco
 	while(temp != NULL)
 	{
 		if(strcmp(temp->mac, beacon_mac) == 0){
-			printf("%s,%s\n", temp->mac, beacon_mac);
 			add_rssi_to_beacon(temp, rssi_val, agent_mac, list->q_max, infos);
 			return;
 		}
@@ -486,7 +478,7 @@ void print_blist(blist_t *list)
 {
 	beacon_t *curr;
 	if(list == NULL) return;
-	printf("\n===============================================================\nPrinting Beacon List Now(Size:%d)\n", list->size);
+	printf("\n**************************\nPrinting Beacon List Now(Size:%d)\n", list->size);
 	curr = list->head;
 	while(curr!=NULL)
 	{
@@ -528,7 +520,6 @@ void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 
 	strncpy(agent_mac, msg, 17);
 	agent_mac[17] = 0;
-	//printf("%s\n", agent_mac);
 
 	line = strtok(msg,"\n");
 	//printf("%s\n", line);
@@ -536,7 +527,6 @@ void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 	{
 		memcpy(buf, line, strlen(line));
 		buf[strlen(line)] = 0;
-		//printf("-----%s\n", buf);
 
 		str_split(buf, agent_mac, list, infos);
 		

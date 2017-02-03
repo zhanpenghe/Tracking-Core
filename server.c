@@ -17,6 +17,7 @@ int agent_num = 0;
 int room_num = 0;
 int beacon_num = 0;
 
+pthread_t output_thread;
 //Loggers for I/O
 logger_t *logger;
 
@@ -152,6 +153,10 @@ void SIGINT_Handler(int sig)
 	//lock everything to prevent I/O's from other threads..
 	pthread_mutex_lock(&logger->lock);
 	pthread_mutex_lock(&list->lock);
+	pthread_mutex_lock(&position_list->lock);
+
+	
+	printf("[INFO] API thread shut down status: %s.\n", (pthread_cancel(output_thread) == 0? "OK": "FAILED"));
 
 	free_agent_list(agent_list);
 
@@ -160,9 +165,8 @@ void SIGINT_Handler(int sig)
 	printf("[INFO] All sockets were shut down.\n");
 	pthread_mutex_unlock(&logger->lock);
 	pthread_mutex_unlock(&list->lock);
+	pthread_mutex_unlock(&position_list->lock);
 
-	//pthread_mutex_lock(&position_list->lock);
-	//free(info_for_calculation);
 	free_logger(logger);
 	printf("[INFO] Logger is freed.\n");
 	print_blist(list);
@@ -222,9 +226,7 @@ void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
 */
 void start_output_thread()
 {
-	pthread_t tid;
-
-	pthread_create(&tid, NULL, start_pos_output_thread, NULL);
+	pthread_create(&output_thread, NULL, start_pos_output_thread, NULL);
 }
 
 void agent_thread_init(int connfd)

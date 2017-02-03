@@ -253,7 +253,7 @@ void* log_and_storeRSSIFromAgent(void *arg)
 		log_to_file(logger, "\n", 1);
 		pthread_mutex_unlock(&logger->lock);
 		pthread_mutex_lock(&list->lock);
-
+		printf("=========================================================\n");
 		printf("--\n%s\n--\n", buf);
 		store_rssi_from_agent(list, buf, infos);
 		pthread_mutex_unlock(&list->lock);
