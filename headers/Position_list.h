@@ -26,6 +26,9 @@ typedef struct pos_list{
 	int size;
 }pos_list_t;
 
+void bound(pos_t *pos);
+
+
 /************************init and free*******************************/
 void init_pos(pos_t *p, int x, int y, int room)
 {
@@ -118,7 +121,7 @@ void add_pos_to_beacon(b_pos_t *b, pos_t *p)
 	if(b == NULL || p == NULL) return;
 
 	p->next = NULL;
-	if(b->head == NULL)
+	if(b->head == NULL || b->max == 1)
 	{
 		b->head = p;
 		b->tail = p;
@@ -191,7 +194,7 @@ void add_pos_info_to_list(pos_list_t *list, int x, int y, char *mac, int room)
 	pos = (pos_t *)malloc(sizeof(pos_t));
 	init_pos(pos, x, y, room);
 
-	add_pos_to_list(list, pos, mac, 5);
+	add_pos_to_list(list, pos, mac, 8);
 }
 
 void get_average_pos(b_pos_t *b, pos_t *result)
@@ -203,6 +206,14 @@ void get_average_pos(b_pos_t *b, pos_t *result)
 	if(b == NULL) return;
 
 	curr = b->head;
+	if(b->size == 1)
+	{
+		printf("x:%f, y:%f\n", curr->loc.x, curr->loc.y);
+		result->loc.x = b->head->loc.x;
+		result->loc.y = b->head->loc.y;
+		return;
+	}
+
 	while(curr != NULL)
 	{
 		printf("x:%f, y:%f\n", curr->loc.x, curr->loc.y);
@@ -345,8 +356,7 @@ int get_pos_by_mac(pos_list_t *list,char *mac, char *buf, int offset)
 	{
 		if(strcmp(curr->mac, mac) == 0 && curr->size > 0){
 			get_average_pos(curr, &average);
-			zone_adjust(&average);
-
+			//zone_adjust(&average);
 			printf("%s: %d, %d\n", curr->mac, (int)average.loc.x, (int)average.loc.y);
 
 			strncpy(buf+offset, y_str, strlen(y_str));

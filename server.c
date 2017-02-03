@@ -12,7 +12,7 @@
 #include "posOutputHandler.h"
 
 int listenfd = 0; //file descriptors
-int port = 9000; //default port
+int port = 9999; //default port
 int agent_num = 0;
 int room_num = 0;
 int beacon_num = 0;

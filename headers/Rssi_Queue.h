@@ -45,9 +45,11 @@ typedef struct beacon{
 	rssi_queue_t *head;
 	rssi_queue_t *tail;
 	int8_t flag;
+	point_t position[10];
 	char mac[18];
 	struct beacon *next;
 	int size;
+	int pos_size;
 }beacon_t;
 
 typedef struct info_for_calc{
@@ -123,6 +125,7 @@ void init_beacon(beacon_t *b, char *mac)
 	b->flag = 0;
 	strncpy(b->mac, mac, 17);
 	b->mac[17] = 0;
+	b->pos_size = 0;
 }
 
 void free_beacon(beacon_t *b)
@@ -335,12 +338,46 @@ void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
 		memset(&pairs[i], 0, sizeof(rssi_pair_t)*(agent_num - i));
 }
 
+//can be refined by not using i
+void add_pos(beacon_t *b, pos_list_t *list, pos_t *position, int room)
+{
+	pos_t *temp;
+	int i = 0;
+
+	b->position[b->pos_size].x = position->loc.x;
+	b->position[b->pos_size].y = position->loc.y;
+	b->pos_size += 1;
+
+	if(b->pos_size >= 10)
+	{
+		temp = (pos_t *) malloc(sizeof(pos_t));
+		temp->loc.x = 0;
+		temp->loc.y = 0;
+		temp->next = NULL;
+		for(;i<10;i++)
+		{	
+			printf("[x: %f, y: %f]\n", b->position[i].x, b->position[i].y);
+			temp->loc.x += b->position[i].x;
+			temp->loc.y += b->position[i].y;
+		}
+		temp->room = room;
+		temp->loc.x /= 10.0;
+		temp->loc.y /= 10.0;
+		printf("avg_pos: %f...%f\n",temp->loc.x, temp->loc.y);
+
+		pthread_mutex_unlock(&list->lock);
+		add_pos_to_list(list, temp, b->mac, 1);
+		pthread_mutex_unlock(&list->lock);
+		b->pos_size = 0;
+	}
+}
+
 //calculate position for a beacon and store it to position list
 void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], room_info_t room_infos[], int agent_num)
 {
 	int8_t room = -1, last_room = -1;
 	calc_prep_t prep;
-	pos_t *pos;
+	pos_t pos;
 
 	if(b == NULL) return;
 	if(b->size <= 3) return;
@@ -352,15 +389,14 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 	if(room == -1) printf("NEED MORE INFO TO CALCULATE POSITION\n");
 	else{
 		print_prep(&prep);
-		pos = (pos_t *) malloc(sizeof(pos_t));
-		calculate(&prep, pos);
-		printf("%f..%f\n", pos->loc.x, pos->loc.y);
-		adjust(pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
-		printf("%f..%f\n", pos->loc.x, pos->loc.y);
+		calculate(&prep, &pos);
+		printf("%f..%f\n", pos.loc.x, pos.loc.y);
+		adjust(&pos, room_infos[room-1].a, room_infos[room-1].b, room_infos[room-1].c, room_infos[room-1].d);
+		printf("%f..%f\n", pos.loc.x, pos.loc.y);
 
-		pthread_mutex_unlock(&list->lock);
-		add_pos_to_list(list, pos, b->mac, 3);
-		pthread_mutex_unlock(&list->lock);
+		bound(&pos);
+
+		add_pos(b, list, &pos, room);
 	}
 }
 
@@ -457,7 +493,6 @@ void print_rssi_q(rssi_queue_t *q)
 	{
 		printf("rssi value: %d\n", curr->rssi);
 		curr = curr->next;
-		usleep(5000);
 	}
 }
 
@@ -522,7 +557,6 @@ void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 	agent_mac[17] = 0;
 
 	line = strtok(msg,"\n");
-	//printf("%s\n", line);
 	while((line = strtok(NULL, "\n"))!=NULL)
 	{
 		memcpy(buf, line, strlen(line));
