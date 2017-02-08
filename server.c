@@ -46,6 +46,7 @@ int main(int argc, char **argv)
 	int connfd = 0;
 	int listenfd = start_server_thread();
 
+	get_parameters();
 	load_commandline_arg(argc, argv);
 
 	//get agent information from list_agent.txt
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
 
     //list for rssi
     list = (blist_t *) malloc(sizeof(blist_t));
-    init_blist(list, 10);
+    init_blist(list, MAL);
 
     //list for positions
     position_list = (pos_list_t *) malloc(sizeof(pos_list_t));
@@ -284,6 +285,45 @@ void agent_thread_init_log(int connfd)
 	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&al);
 	printf("thread created\n");
 }
+
+void get_parameters(){
+	paramList_t *p_list = (paramList_t*) malloc(sizeof(paramList_t));
+	init_param_list(p_list);
+	read_ini_file("./conf.ini", p_list);
+	param_t *p;
+
+	while((p = next_param(p_list))!=NULL)
+	{
+		if(strcmp(p->key, "port")==0)
+		{
+			port = atoi(p->value);
+		}else if(strcmp(p->key, "EAC")==0)
+		{
+			EAC = atoi(p->value);
+		}else if(strcmp(p->key, "MA")==0)
+		{
+			MA = atoi(p->value);
+		}else if(strcmp(p->key, "PMA")==0)
+		{
+			PMA = atoi(p->value);
+		}else if(strcmp(p->key, "PN")==0)
+		{
+			PN = atof(p->value);
+		}else if(strcmp(p->key, "PA")==0)
+		{
+			PA = atof(p->value);
+		}else if(strcmp(p->key, "DMR")==0)
+		{
+			DMR = atoi(p->value);
+		}else if (strcmp(p->key, "MAL")==0)
+		{
+			MAL = atoi(p->value);
+		}
+	}
+
+	free_param_list(p_list);
+}
+
 
 char *get_beacon_mac_addr(char *id)
 {

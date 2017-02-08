@@ -67,12 +67,12 @@ void free_param_list(paramList_t *list)
 {
 	param_t *curr, *next;
 	if(list == NULL) return;
-	printf("size: %d\n", list->size);
+	//printf("size: %d\n", list->size);
 	curr = list->head;
 	while(curr!=NULL)
 	{
 		next = curr->next;
-		printf("freeing param|key|%s|val|%s\n", curr->key, curr->value);
+		//printf("freeing param|key|%s|val|%s\n", curr->key, curr->value);
 		freeParam(curr);
 		curr = next;
 	}

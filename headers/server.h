@@ -20,3 +20,5 @@ void SIGINT_Handler(int sig);
 char *get_beacon_mac_addr(char *id);
 
 void *get_pos_list();
+
+void get_parameters();
