@@ -23,7 +23,6 @@ logger_t *logger;
 
 //data structures
 agent_list_t *agent_list;	// agent handlers 
-//pos_calc_t *info_for_calculation;	//information for calculation
 blist_t *list;	//store all the rssi
 pos_list_t *position_list;	//store all the position
 
@@ -340,4 +339,17 @@ char *get_beacon_mac_addr(char *id)
 void *get_pos_list()
 {
 	return (void *)position_list;
+}
+
+float get_PA(){
+	return PA;
+}
+
+float get_PN(){
+	return PN;
+}
+
+int get_PMA()
+{
+	return PMA;
 }

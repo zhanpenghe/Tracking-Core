@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-#include "./headers/server.h"
 //#include "position.h"	//agent handler, rssi_q are here...  need to be restructure to make it look nice..
 #include "./utils/mongoose.c"
 #include "agentHandler.h"

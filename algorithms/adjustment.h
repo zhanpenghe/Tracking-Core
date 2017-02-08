@@ -15,7 +15,6 @@ void bound(pos_t *pos)
 		}
 	}else if(pos->room == 2)
 	{
-		printf("asfsa\n");
 		if(pos->loc.x < 723) pos->loc.x = 723;
 		if(pos->loc.x > 1293) pos->loc.x = 1293;
 		if(pos->loc.y < 60) pos->loc.y = 60;

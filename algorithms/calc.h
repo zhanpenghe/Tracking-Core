@@ -1,4 +1,5 @@
 #include "../headers/beaconInfo.h"
+#include "../headers/server.h"
 #include "adjustment.h"
 
 typedef struct calc_prep
@@ -40,7 +41,7 @@ void calculate(calc_prep_t *prep, pos_t *result)
 {
 
 	float d0, d1, d2;
-	float PN = 3.5, PA = -47;
+	float PN = get_PN(), PA = get_PA();
 	point_t p0, p1, p2, p01, p02, p12;
 	line_t l01, l02, l12;
 	if(prep == NULL || result == NULL) return;
