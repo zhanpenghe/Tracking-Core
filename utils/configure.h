@@ -194,6 +194,6 @@ void read_ini_file(const char* filename, paramList_t *list)
         setParamFromString(p, line, read);
         add_param(list, p);
     }
-
+    if(line!=NULL) free(line);
     fclose(fp);
 }

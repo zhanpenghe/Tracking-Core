@@ -16,6 +16,7 @@ int port = 9999; //default port
 int agent_num = 0;
 int room_num = 0;
 int beacon_num = 0;
+int8_t logonly = 0;
 
 pthread_t output_thread;
 //Loggers for I/O
@@ -28,6 +29,7 @@ pos_list_t *position_list;	//store all the position
 
 info_for_calc_t info_for_calc;
 beacon_info_t *beacon_infos;
+agent_info_t *agent_infos;
 
 /***************CONFIG.INI*******************/
 int EAC = 12;
@@ -52,7 +54,7 @@ int main(int argc, char **argv)
 	param_slist_t *agent_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
 	agent_num = get_agent_count(agent_infos_p);
 
-	agent_info_t agent_infos[agent_num];
+	agent_infos = (agent_info_t *)malloc(sizeof(agent_info_t)*agent_num);
 
 	load_agent_infos(agent_infos, agent_infos_p);
 	free_param_slist(agent_infos_p);
@@ -119,7 +121,12 @@ int main(int argc, char **argv)
 		connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
 		//set up agent handling thread
-		agent_thread_init(connfd);
+		if(logonly == 1){ 
+			agent_thread_init_log(connfd);
+		}
+		else {
+			agent_thread_init(connfd);
+		}
 	}
 }
 
@@ -129,15 +136,18 @@ void load_commandline_arg(int argc, char** argv)
 	setvbuf(stdout, NULL, _IONBF, 0);
 	opterr = 0;
 
-	while((c = getopt(argc, argv, "p:h")) != -1){
+	while((c = getopt(argc, argv, "p:hl")) != -1){
 		switch(c){
 			case 'p':
 				port = atoi(optarg);
 				break;
 			case 'h':
-                usage();
-                exit(0);
-                break;
+				usage();
+				exit(0);
+				break;
+			case 'l':
+				logonly = 1;
+				break;
 			default:
 				printf("-h for help.\n");
 				exit(EXIT_FAILURE);
@@ -183,6 +193,7 @@ void SIGINT_Handler(int sig)
 	printf("[INFO] Blist is freed.\n");
 	free_pos_list(position_list);
 
+	free(agent_infos);
 	exit(0);
 }
 
@@ -281,7 +292,7 @@ void agent_thread_init_log(int connfd)
 	al.agent = agent;
 	al.logger = logger;
 
-	pthread_create(&tid, NULL, log_and_storeRSSIFromAgent, (void*)&al);
+	pthread_create(&tid, NULL, logRSSIFromAgent, (void*)&al);
 	printf("thread created\n");
 }
 

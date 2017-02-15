@@ -2,9 +2,10 @@ OBJS = tracking_server
 LIBS = -lpthread -lm
 CC = gcc
 FILE = ./server.c
+FLAG = -o
 
 server:
-	$(CC) -o $(OBJS) $(FILE) $(LIBS)
+	$(CC) $(FLAG) $(OBJS) $(FILE) $(LIBS)
 
 clean:
 	rm $(OBJS)

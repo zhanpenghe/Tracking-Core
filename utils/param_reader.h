@@ -82,7 +82,7 @@ void free_param_s(param_s_t *p)
 {
 	val_t *curr, *next;
 	if(p == NULL) return;
-
+	free(p->key);
 	curr = p->head;
 	while(curr != NULL){
 		next = curr->next;
@@ -271,6 +271,7 @@ void read_param_file(const char* filename, param_slist_t *list)
 		
 		add_param_s_to_list(list, p);
     }
-
+    
+    if(line!=NULL) free(line);
     fclose(fp);
 }

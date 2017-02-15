@@ -191,12 +191,33 @@ void* printRSSIFromAgent(void *arg)
 	}
 }
 
+static inline double
+microtime_calc (struct timeval *tv)
+{
+    return tv->tv_sec + (tv->tv_usec / 1000000.0);
+}
+
+static inline double
+microtime (void)
+{
+    struct timeval tv;
+
+    if (!gettimeofday (&tv, NULL))
+        return microtime_calc (&tv);
+    else
+        return 0;
+}
+
 //only log the measurement
 void* logRSSIFromAgent(void *arg)
 {
-	int len;
+	int len, offset = 0;
 	char buf[1025];
+	char buf2[1050];
 	char ret[] = {'z', '\0'}; 	//message to confirm the data arrival
+	char *line;
+	double current_time;
+	char ctimestr[20];
 
 	printf("Start handling...\n");
 	agent_t *agent = ((agent_and_logger_t *) arg)->agent;
@@ -212,9 +233,32 @@ void* logRSSIFromAgent(void *arg)
 	while((len = read(agent->con_fd, buf, sizeof(buf)-1))>0)
 	{
 		buf[len] = 0;
+		offset = 0;
+
+		line = strtok(buf,"\n");
+		strncpy(buf2, line, strlen(line));
+		offset+=(int) strlen(line);
+		buf2[offset] = '|';
+		offset++;
+
+		current_time = microtime();
+		snprintf(ctimestr, 20, "%6.4f", current_time);
+		strncpy(buf2+offset, ctimestr, strlen(ctimestr));
+		offset+=(int)strlen(ctimestr);
+
+		buf2[offset] = '\n';
+		offset++;
+
+		while((line = strtok(NULL, "\n"))!=NULL)
+		{
+			strncpy(buf2+offset, line, strlen(line));
+			offset+=(int) strlen(line);
+			buf2[offset] = '\n';
+			offset++;
+		}
+		
 		pthread_mutex_lock(&logger->lock);
-		log_to_file(logger, buf, len);
-		log_to_file(logger, "\n", 1);
+		log_to_file(logger, buf2, offset);
 		pthread_mutex_unlock(&logger->lock);
 		write(agent->con_fd, ret, 2);
 	}

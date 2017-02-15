@@ -276,41 +276,6 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 	pair->mac[17] = 0;
 
 	pair->rssi = q->out;
-/*
-
-	if(q->size == 0){
-		pair->rssi = 34;
-		return;
-	}
-
-	curr = q->head;
-	if(q->size < q->max)
-	{
-		result = q->head->rssi;
-		while(curr!=NULL)
-		{
-			if(curr->rssi > result)
-			{
-				result = curr->rssi;
-			}
-			curr = curr->next;
-		}
-
-		pair->rssi = result;
-		return;
-	}
-	
-	result = q->head->rssi;
-	while(curr!=q->head)
-	{
-		if(curr->rssi >result )
-		{
-			result = curr->rssi;
-		}
-		curr = curr->next;
-	}
-
-	pair->rssi = (int)(MA*((float)curr->rssi) + (1-MA)*((float)result));*/
 }
 
 void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
@@ -522,12 +487,12 @@ void print_blist(blist_t *list)
 	}
 }
 
-void str_split(char *buf, char *agent_mac, blist_t *list, info_for_calc_t *infos)
+void str_split(char *buf, char *beacon_mac, blist_t *list, info_for_calc_t *infos)
 {
-	char *beacon_mac, *rssi_str, *temp;
+	char *agent_mac, *rssi_str, *temp;
 
 	temp = strtok_r(buf, "|", &buf);
-	beacon_mac = temp;
+	agent_mac = temp;
 	temp = strtok_r(NULL, "|", &buf);
 	rssi_str = temp;
 	temp = strtok_r(NULL,"|", &buf);
@@ -548,13 +513,13 @@ void str_split(char *buf, char *agent_mac, blist_t *list, info_for_calc_t *infos
 void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 {
 	char *line, *temp;
-	char *beacon_mac, *rssi_str;
-	char agent_mac[18];
+	char *rssi_str;
+	char beacon_mac[18];
 	char buf[39];
 	if(list == NULL || msg == NULL) return;
 
-	strncpy(agent_mac, msg, 17);
-	agent_mac[17] = 0;
+	strncpy(beacon_mac, msg, 17);
+	beacon_mac[17] = 0;
 
 	line = strtok(msg,"\n");
 	while((line = strtok(NULL, "\n"))!=NULL)
@@ -562,7 +527,7 @@ void store_rssi_from_agent(blist_t *list, char *msg, info_for_calc_t *infos)
 		memcpy(buf, line, strlen(line));
 		buf[strlen(line)] = 0;
 
-		str_split(buf, agent_mac, list, infos);
+		str_split(buf, beacon_mac, list, infos);
 		
 	}
 
