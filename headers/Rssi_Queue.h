@@ -345,8 +345,8 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 	pos_t pos;
 
 	if(b == NULL) return;
-	if(b->size <= 3) return;
-	
+	if(b->size < 3) return;
+
 	rssi_pair_t rssi_pairs[agent_num];
 	prep.infos = infos;
 	get_rssi_for_calc(b, rssi_pairs, agent_num);
