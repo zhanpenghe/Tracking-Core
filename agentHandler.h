@@ -7,6 +7,7 @@ typedef struct agent{
 	pthread_t *tid;
 	int con_fd;	//file descriptor of the socket
 	struct agent *next;
+	char mac[18];
 }agent_t;
 
 typedef struct agentAndLogger
@@ -247,6 +248,17 @@ void* log_and_storeRSSIFromAgent(void *arg)
 	{
 		printf("get info of len: %d\n", len);
 		buf[len] = 0;
+
+		if(len < 36 && len >18){	//less than len of two mac addr.. just a keep_alive msg 
+			printf("keep_alive msg: %s\n", buf);
+			strncpy(agent->mac, buf, 17);
+			agent->mac[17] = 0;
+			write(agent->con_fd, ret, 2);
+			continue;
+		}else if(len < 18){	//garbage 
+			continue;
+		}
+
 		//this need to be changed later.... todo
 		pthread_mutex_lock(&logger->lock);
 		log_to_file(logger, buf, len);
