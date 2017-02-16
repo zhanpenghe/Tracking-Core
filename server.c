@@ -28,6 +28,7 @@ pos_list_t *position_list;	//store all the position
 
 info_for_calc_t info_for_calc;
 beacon_info_t *beacon_infos;
+agent_info_t *agent_infos;
 
 /***************CONFIG.INI*******************/
 int EAC = 12;
@@ -52,10 +53,11 @@ int main(int argc, char **argv)
 	param_slist_t *agent_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
 	agent_num = get_agent_count(agent_infos_p);
 
-	agent_info_t agent_infos[agent_num];
+	agent_info_t agent_infos_array[agent_num];
 
-	load_agent_infos(agent_infos, agent_infos_p);
+	load_agent_infos(agent_infos_array, agent_infos_p);
 	free_param_slist(agent_infos_p);
+	agent_infos = agent_infos_array;
 
 	//get room info from list_beacon.txt
 	param_slist_t *room_infos_p = (param_slist_t*) malloc(sizeof(param_slist_t));
@@ -341,6 +343,11 @@ void *get_pos_list()
 	return (void *)position_list;
 }
 
+void *get_agent_list()
+{
+	return (void *)agent_list;
+}
+
 float get_PA(){
 	return PA;
 }
@@ -352,4 +359,14 @@ float get_PN(){
 int get_PMA()
 {
 	return PMA;
+}
+
+void *get_agent_infos()
+{
+	return (void *)agent_infos;
+}
+
+int get_agent_num()
+{
+	return agent_num;
 }

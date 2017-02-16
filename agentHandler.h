@@ -90,7 +90,7 @@ void print_ag_list(agent_list_t *list)
 
 	curr = list->head;
 	while(curr != NULL){
-		printf("%d %d\n", i, curr->con_fd);
+		printf("%d %d %s\n", i, curr->con_fd, curr->mac);
 		curr = curr->next;
 		i++;
 		sleep(1);
@@ -120,18 +120,18 @@ void add_new_agent_connection(agent_list_t *list, agent_t *agent)
 
 }
 
-void remove_agent_connection(agent_list_t *list, agent_t *agent)
+void remove_agent_connection(agent_list_t *list, char *mac)
 {
 	agent_t *curr, *next, *prev = NULL;
-	if(list == NULL || agent == NULL) return;
+	if(list == NULL || mac == NULL) return;
 
 	pthread_mutex_lock(&list->lock);
 
 	curr = list->head;
 	while(curr != NULL){
 		next = curr->next;
-
-		if(curr == agent)
+		printf("%s\n", curr->mac);
+		if(strcmp(curr->mac, mac) == 0)
 		{
 			printf("found\n");
 			if(curr == list->head)
@@ -158,13 +158,29 @@ void remove_agent_connection(agent_list_t *list, agent_t *agent)
 				printf("WIERD THING HAPPENED WHEN REMOVING AN AGENT CONNECTION\n");
 			}
 			free_agent(curr);
+			pthread_mutex_unlock(&list->lock);
 			return;
 		}
 		prev = curr;
 		curr = next;
 	}
-	pthread_mutex_unlock(&list->lock);
 
+	pthread_mutex_unlock(&list->lock);
+}
+
+int check_status(char *mac, agent_list_t *list)
+{
+	agent_t *curr;
+	if(mac == NULL || list == NULL) return 0;
+
+	curr = list->head;
+	while(curr!=NULL)
+	{
+		printf("%s\n", curr->mac);
+		if(strcmp(curr->mac, mac) == 0) return 1;
+		curr = curr->next;
+	}
+	return 0;
 }
 
 //only print out the measurement to console
@@ -274,6 +290,6 @@ void* log_and_storeRSSIFromAgent(void *arg)
 	}
 
 	printf("[INFO] An agent was disconnected... Now delete it from the list. \n");
-	remove_agent_connection(agent_list, agent);
+	remove_agent_connection(agent_list, agent->mac);
 }
 

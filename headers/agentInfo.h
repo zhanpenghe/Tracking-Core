@@ -40,3 +40,15 @@ void load_agent_infos(agent_info_t infos[], param_slist_t *list)
 		i++;
 	}
 }
+
+char* get_mac_by_id(agent_info_t infos[], int size, char *id)
+{
+	int i=0;
+	if(id == NULL) return NULL;
+	while(i<size)
+	{
+		if(strcmp(infos[i].id, id)==0) return infos[i].mac;
+		i++;
+	}
+	return NULL;
+}

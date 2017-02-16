@@ -19,6 +19,9 @@ void SIGINT_Handler(int sig);
 
 char *get_beacon_mac_addr(char *id);
 
+
+//getters for global var in server.c
+
 void *get_pos_list();
 
 void get_parameters();
@@ -28,3 +31,9 @@ float get_PN();
 float get_PA();
 
 int get_PMA();
+
+void *get_agent_infos();
+
+int get_agent_num();
+
+void *get_agent_list();
