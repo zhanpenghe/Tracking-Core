@@ -216,25 +216,8 @@ int start_server_thread()
 
 	return listenfd;
 }
-/*
-void start_calculation_thread(agent_info_t infos[], room_info_t room_infos[])
-{
-	pthread_t tid;
 
-	printf("[INFO] Total # of agents is %d.\n",agent_num);
 
-	info_for_calculation = (pos_calc_t *) malloc(sizeof(pos_calc_t));
-	info_for_calculation->list = list;
-	info_for_calculation->pos_list = position_list;
-	info_for_calculation->agent_num = agent_num;
-	info_for_calculation->infos = infos;
-	info_for_calculation->room_infos = room_infos;
-
-	pthread_create(&tid, NULL, pos_generation, (void*)info_for_calculation);
-
-	printf("[INFO] Calcultion thread started\n");
-}
-*/
 void start_output_thread()
 {
 	pthread_create(&output_thread, NULL, start_pos_output_thread, NULL);

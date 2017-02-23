@@ -276,41 +276,7 @@ void get_rssi_from_q(rssi_queue_t *q, rssi_pair_t *pair)
 	pair->mac[17] = 0;
 
 	pair->rssi = q->out;
-/*
 
-	if(q->size == 0){
-		pair->rssi = 34;
-		return;
-	}
-
-	curr = q->head;
-	if(q->size < q->max)
-	{
-		result = q->head->rssi;
-		while(curr!=NULL)
-		{
-			if(curr->rssi > result)
-			{
-				result = curr->rssi;
-			}
-			curr = curr->next;
-		}
-
-		pair->rssi = result;
-		return;
-	}
-	
-	result = q->head->rssi;
-	while(curr!=q->head)
-	{
-		if(curr->rssi >result )
-		{
-			result = curr->rssi;
-		}
-		curr = curr->next;
-	}
-
-	pair->rssi = (int)(MA*((float)curr->rssi) + (1-MA)*((float)result));*/
 }
 
 void get_rssi_for_calc(beacon_t *b, rssi_pair_t pairs[], int agent_num)
@@ -380,7 +346,7 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 	pos_t pos;
 
 	if(b == NULL) return;
-	if(b->size <= 3) return;
+	if(b->size < 3) return;
 	
 	rssi_pair_t rssi_pairs[agent_num];
 	prep.infos = infos;

@@ -176,7 +176,6 @@ int check_status(char *mac, agent_list_t *list)
 	curr = list->head;
 	while(curr!=NULL)
 	{
-		printf("%s\n", curr->mac);
 		if(strcmp(curr->mac, mac) == 0) return 1;
 		curr = curr->next;
 	}
@@ -241,7 +240,7 @@ void* log_and_storeRSSIFromAgent(void *arg)
 {
 	int len;
 	char buf[1025];
-	char ret[] = {'z', '\0'}; 	//message to confirm the data arrival
+	char ret[] = {'z', '\0'};	//message to confirm the data arrival
 
 	printf("Start handling...\n");
 	agent_t *agent = ((agent_logger_blist_t *) arg)->agent;
