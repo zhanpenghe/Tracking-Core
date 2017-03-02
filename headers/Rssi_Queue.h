@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "../algorithms/calc.h"
+#include "../utils/kalman_filter.h"
 
 typedef struct rssi
 {
@@ -39,6 +40,7 @@ typedef struct rssi_queue
 	int size;
 	int max;
 	struct rssi_queue *next;
+	kmf_t filter;
 }rssi_queue_t;
 
 typedef struct beacon{
@@ -98,6 +100,7 @@ void init_rssi_queue(rssi_queue_t *q, char* mac, int max)
 	q->out = 34;
 	strncpy(q->mac, mac, 17);
 	q->mac[17] = 0;
+	setup_kmf(&q->filter, 0.03, 0.3);
 }
 
 void free_rssi_queue(rssi_queue_t *q)
@@ -248,6 +251,9 @@ void enqueue(rssi_queue_t *q, rssi_t *r)
 void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 {
 	if(q == NULL || r == NULL) return;
+
+	//apply kalman filter here
+	r->rssi = (int) filter(&q->filter, (float)r->rssi);
 
 	if(q->size < q->max){
 		enqueue(q, r);

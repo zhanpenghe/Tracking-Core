@@ -37,7 +37,7 @@ int PMA = 10;
 float PN = 3.5;
 float PA = -47;
 int DMR = 9;
-int MAL = 10;
+int MAL = 4;
 /******************END**********************/
 
 int main(int argc, char **argv)

@@ -56,7 +56,7 @@ void calculate(calc_prep_t *prep, pos_t *result)
 	d1 = rssi_to_distance(prep->rssi[1], PA, PN);
 	d2 = rssi_to_distance(prep->rssi[2], PA, PN);
 
-	//printf("d: %f..%f..%f\n", d0, d1, d2);
+	printf("d: %f..%f..%f\n", d0, d1, d2);
 
 	get_point_by_ratio(&p0, &p1, &p01, d0, d1);
 	get_point_by_ratio(&p0, &p2, &p02, d0, d2);
