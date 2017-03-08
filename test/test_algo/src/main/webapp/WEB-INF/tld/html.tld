@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+
+	<tlib-version>2.0</tlib-version>
+	<jsp-version>1.1</jsp-version>
+	<short-name>adam</short-name>
+	<description>adam</description>
+
+
+
+	<tag>
+		<description>Subpages</description>
+		<name>Pagination</name>
+		
+		<tag-class>com.taglib.model.PaginationTag</tag-class>
+		<body-content>scriptless</body-content>
+		<attribute>
+			<name>id</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>pageSize</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+		</attribute>
+		<attribute>
+			<name>totalCount</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+		</attribute>
+		<attribute>
+			<name>totalPage</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+		</attribute>
+		<attribute>
+			<name>currentPageNo</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>date</name>
+		<tag-class>com.taglib.model.DateTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>format</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+
+
+</taglib>

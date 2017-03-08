@@ -1,4 +1,16 @@
-
+/*
+ * 1D Kalman Filter Implementation
+ * with default settings.
+ * @Author Adam Ho
+ * 
+ *
+ * Example usage:
+ *
+ * kmf_t *filter = (kmf_t *) malloc(sizeof(kmf_t));
+ * setup_kmf(filter, 0.03, 0.3);
+ * ... use filter to do the filtering
+ *
+ */
 
 typedef struct kmf{
 
@@ -11,7 +23,6 @@ typedef struct kmf{
 	float cov;	//Covariance matrix
 	int8_t isInit;
 }kmf_t;
-
 
 void init_kmf(kmf_t *filter)
 {

@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0"> 
+<title>无标题文档</title>
+<style type="text/css">
+/*信息提示*/
+div.VsNote-queue{position:fixed;z-index:9999;width:100%;text-align:center;}
+div.VsNote-note{}
+div.VsNote{font-size:12px;color:#fff;display:none;padding:10px;position:relative;
+box-shadow:0px 0px 5px #000;
+-moz-box-shadow:0px 0px 5px #000;
+-webkit-box-shadow:0px 0px 5px #000;
+background-image: -webkit-gradient(linear, left top, left bottom, from( rgba(60,60,60,0.95) /*{a-bar-background-start}*/), to( rgba(0,0,0,0.9) /*{a-bar-background-end}*/)); /* Saf4+, Chrome */
+background-image: -webkit-linear-gradient( rgba(60,60,60,0.95) /*{a-bar-background-start}*/, rgba(0,0,0,0.9) /*{a-bar-background-end}*/); /* Chrome 10+, Saf5.1+ */
+background-image: -moz-linear-gradient( rgba(60,60,60,0.95) /*{a-bar-background-start}*/, rgba(0,0,0,0.9) /*{a-bar-background-end}*/); /* FF3.6 */
+background-image: -ms-linear-gradient( rgba(60,60,60,0.95) /*{a-bar-background-start}*/, rgba(0,0,0,0.9) /*{a-bar-background-end}*/); /* IE10 */
+background-image: -o-linear-gradient( rgba(60,60,60,0.95) /*{a-bar-background-start}*/, rgba(0,0,0,0.9) /*{a-bar-background-end}*/); /* Opera 11.10+ */
+background-image: linear-gradient( rgba(60,60,60,0.95) /*{a-bar-background-start}*/, rgba(0,0,0,0.9) /*{a-bar-background-end}*/)}
+div.VsNote h2{font-size:14px;font-weight:bold;color:#fff;text-shadow:0px -1px 1px #000;}
+div.VsNote p{font-size:12px;color:#fff;}
+img.VsNote-close{position:absolute;top:10px;right:10px;height:14px;width:14px;cursor:pointer;}
+.top-center{top:0;left:0;}
+.top-bottom{bottom:0;left:0;}
+</style>
+</head>
+
+<body>
+<div class="showMes">弹出内容</div>
+<script src="jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="jquery.VsNote.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+$(function(){
+	$('.showMes').off('click.meg').on('click.meg',function(){
+		$.VsNote('这是提示内容', {'speed': 'fast','duplicates': false,'autoclose': 3000})
+	})
+})
+</script>
+</body>
+</html>

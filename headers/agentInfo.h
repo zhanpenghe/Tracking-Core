@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "roomInfo.h"
 
-
 typedef struct agent_info
 {
 	int room_id;

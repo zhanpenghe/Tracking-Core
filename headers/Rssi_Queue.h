@@ -327,7 +327,7 @@ void add_pos(beacon_t *b, pos_list_t *list, pos_t *position, int room)
 		temp->loc.y = 0;
 		temp->next = NULL;
 		for(;i<10;i++)
-		{	
+		{
 			printf("[x: %f, y: %f]\n", b->position[i].x, b->position[i].y);
 			temp->loc.x += b->position[i].x;
 			temp->loc.y += b->position[i].y;
