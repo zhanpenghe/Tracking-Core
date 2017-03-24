@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>Tracking friends</title>
+    <script type="text/javascript" src="d3/d3.min.js"></script>
+  </head>
+  <body bgcolor="#111">
+    <div id="chart">
+    </div>
+  <style>
+  label{
+    display:block;
+    font-weight:bold;
+    text-align:left;
+    padding-right:100px;
+    float:left;
+  }
+  </style>
+  <script type="text/javascript">
+   var w = 1024,
+    h = 1024,
+    fill = d3.scale.category20();
+    floor = 2;
+
+   var data = new Array();
+   var data2 = new Array();
+   var X = new Array();
+   var Y = new Array();
+
+   var vis = d3.select('#chart')
+   .attr('style', 'background-image: url(test_floor.png); background-repeat: no-repeat;')
+    .append('svg:svg')
+    .attr('width', w)
+    .attr('height', h);
+
+	function readerid(id)
+	{
+	    var num = (id & 0xFF).toString();
+
+	    while( num.length < 3 )
+		num = '0' + num;
+
+	    return String.fromCharCode(65+((id>>8)&0x1F))+num;
+	}
+
+   function process_server(json) {
+ 
+     data = [];
+     data2 = [];
+     X = [];
+     Y = [];
+
+     for (i in json.tag) { 
+	tag = json.tag[i]; 
+           if ( tag.button && tag.loc ) {
+              data2.push(tag.id);
+              X[tag.id] = tag.loc[0];
+              Y[tag.id] = tag.loc[1];
+           }
+           data.push(tag.id);
+     }
+        vis.selectAll("circle")
+            .data(json.tag, function(d) { return d.id; }).enter().append("svg:circle");
+        vis.selectAll("circle")
+            .data(json.tag, function(d) {return d.id;})
+            .attr("class","orig").transition().duration(333)
+            .attr("cx",function(d) {return d.loc ? d.loc[0]:0 ;})
+            .attr("cy",function(d) {return d.loc ? d.loc[1]:0 ;})
+            .attr("r",5)
+            .attr("stroke","white")
+            .attr("fill","blue")
+            .attr("stroke-width",2);
+        vis.selectAll("circle").append("svg:title").text(function(d) {return d.id;});
+        vis.selectAll("circle")
+            .data(json.tag, function(d) {return d.id;}).exit().remove();
+
+    vis.selectAll("circle.pulse").remove();
+    vis.selectAll("circle.pulse")
+        .data(data2)
+      .enter().append("svg:circle")
+            .attr("class", "pulse")
+            .attr("r",8)
+            .attr("stroke","white")
+            .transition()
+            .duration(333)
+            .attr("cx",function(i) {return X[i];})
+            .attr("cy",function(i) {return Y[i];})
+            .attr("fill","transparent")
+            .attr("stroke-width",2)
+        .attr("r", 20)
+        .style("stroke-opacity", 0.0);
+
+   }
+
+   function refresh_svg() {
+      d3.json('1.json', process_server);
+      window.setTimeout(refresh_svg, 333);
+   }
+
+   refresh_svg();
+ </script>
+  </body>
+</html>
+

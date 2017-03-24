@@ -1,0 +1,15 @@
+# The coordinate of agent calculated by:
+# x_new = x_true*100+50
+# y_new = y_true*100+50
+agent101|B8:27:EB:CD:80:C3|50|97|1
+agent102|B8:27:EB:9A:24:A4|50|361|1
+agent103|B8:27:EB:80:91:7F|641|93|1
+agent104|B8:27:EB:F5:38:D3|663|91|2
+agent105|B8:27:EB:7E:15:C7|941|312|2
+agent106|B8:27:EB:B2:7B:60|1253|112|2
+agent107|B8:27:EB:18:89:50|819|350|3
+agent108|B8:27:EB:22:76:E4|849|534|3
+agent109|B8:27:EB:E3:8A:E1|1410|355|3
+agent111|B8:27:EB:5C:D8:D0|1107|835|4
+agent112|B8:27:EB:B4:4B:1D|2059|375|4
+agent113|B8:27:EB:3C:96:FE|2135|815|4

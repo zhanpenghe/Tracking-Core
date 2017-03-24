@@ -1,0 +1,56 @@
+The file needed in server :
+	1 new_server_tmp.py: the main program of tracking_core include communicaton and API,agent 		and beacon model
+
+	2 config.ini: the parameter we need in new_server_temp.py
+
+	3 alg folder: include three algrithom of tracking simply(Simple ratio algorithm), ls(Least 		square algorithm) and grid(divide room in different area)
+	
+	4 boundary.py: include the room boundary information used in new_server_temp
+
+	5 D00X.XXX.txt: local data to simulator the system
+				example format:
+						B8:27:EB:5C:D8:D0|10
+						CF:38:9F:EB:5B:65|-63|1468952778.7068
+						EC:14:9B:8C:C7:7D|-86|1468952778.7943
+						C9:35:DF:1A:A8:BD|-65|1468952778.7943
+						CF:38:9F:EB:5B:65|-48|1468952778.8081
+						FA:19:26:06:7A:AE|-71|1468952778.8623
+						EC:14:9B:8C:C7:7D|-86|1468952778.9251
+						FE:D9:0F:07:C3:3D|-62|1468952778.9463
+						FD:A6:A5:1C:45:98|-61|1468952778.9700
+						C9:35:DF:1A:A8:BD|-61|1468952778.9835
+						CF:38:9F:EB:5B:65|-64|1468952779.0176
+						Time:14:26:19
+	
+	6 local_result.txt: recording the simulator system result
+				example format:
+					beacon name|X|Y|time
+	
+	7 log_demo.txt: recording the original data collected from agent
+				example format:
+					B8:27:EB:5C:D8:D0|10
+					CF:38:9F:EB:5B:65|-63|1468952778.7068
+					EC:14:9B:8C:C7:7D|-86|1468952778.7943
+					C9:35:DF:1A:A8:BD|-65|1468952778.7943
+					CF:38:9F:EB:5B:65|-48|1468952778.8081
+					FA:19:26:06:7A:AE|-71|1468952778.8623
+					EC:14:9B:8C:C7:7D|-86|1468952778.9251
+					FE:D9:0F:07:C3:3D|-62|1468952778.9463
+					FD:A6:A5:1C:45:98|-61|1468952778.9700
+					C9:35:DF:1A:A8:BD|-61|1468952778.9835
+					CF:38:9F:EB:5B:65|-64|1468952779.0176
+					Time:14:26:19
+
+	8 log_result.txt: recording the real system result
+				example format:
+					beacon name|X|Y|time
+
+	9 list_beacon.txt: recording beacon information include mac addr and baecon name,beacon 	colour used in gui
+	
+	10 list_agent.txt: recording agent information include mac addr and agent name,agent 		postition,room agent belong
+
+	11 list_room_max.txt: the room enviroment info to adjust beacon location
+
+	12 Gui folder: simple gui to adjust the sys
+
+	13 time_rsync.log: record the server action

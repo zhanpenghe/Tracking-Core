@@ -1,0 +1,301 @@
+
+<!doctype html>
+<html style="width:100%; height:100%;">
+<head><script src="jquery-2.2.0.min.js"></script>
+<title>IoT Eye Bluetooth Visualization</title>
+</head>
+<body style="width:100%; height:100%; background:#000; color:#0F0; margin:0px;">
+
+<table style=" align: center; width: 1400px; height: 300px;" border ="0" cellpadding="2" cellspacing="2">
+    <tr>
+        <canvas id="canvas01" style="margin-left:20px; margin-right:20px;margin-top:20px;"></canvas>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_0" checked/> Beacon 1<br></th>
+        <th><button onclick="check1()">show detail of beacon</button></th>
+        <th><button onclick="uncheck1()">mark</button></th>
+        <th><button onclick="release1()">release</button></th>
+        <th rowspan="6"><canvas id="showbroad" width="600" height="300" style="display:block;background:#FFFFFF;margin-left:auto; margin-right:auto"></canvas></th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_1" checked/> Beacon 2<br></th>
+        <th><button onclick="check2()">show detail of beacon</button></th>
+        <th><button onclick="uncheck2()">mark</button></th>
+        <th><button onclick="release2()">release</button></th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_2" checked/> Beacon 3<br></th>
+        <th><button onclick="check3()">show detail of beacon</button></th>
+        <th><button onclick="uncheck3()">mark</button></th>
+        <th><button onclick="release3()">release</button></th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_3" checked/> Beacon 4<br></th>
+        <th><button onclick="check4()">show detail of beacon</button></th>
+        <th><button onclick="uncheck4()">mark</button></th>
+        <th><button onclick="release4()">release</button></th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_4" checked/> Beacon 5<br></th>
+        <th><button onclick="check5()">show detail of beacon</button></th>
+        <th><button onclick="uncheck5()">mark</button></th>
+        <th><button onclick="release5()">release</button></th>
+    </tr>
+    <tr>
+        <th><input type="checkbox" id="cb_5" checked/> Beacon 6<br></th>
+        <th><button onclick="check6()">show detail of beacon</button></th>
+        <th><button onclick="uncheck6()">mark</button></th>
+        <th><button onclick="release6()">release</button></th>
+    </tr>
+
+</table>
+<script type="text/javascript">
+
+var img = new Image;
+img.src='http://10.237.43.176:8000/test_floor.png';
+var a = [0,0,0,0,0,0];
+var pos = [];
+var index_by_id = [];
+var idx_color = ['#34FF85', '#3ABBFF', '#57397F','#34FF85', '#3ABBFF', '#57397F','#FFA214','#F934FF'];
+sx = 0.73;
+sy = 0.73;
+init();
+
+function init() {
+  load_positions(true);
+  setInterval(load_positions,10);
+}
+
+function autoscale() {
+    var maxx, maxy;
+    maxx= 0;
+    maxy=0;
+
+    for(var i = 0; i < pos[0].reader.length; i++) {
+        if(pos[0].reader[i].loc) {
+            var cx = pos[0].reader[i].loc[0];
+            var cy = pos[0].reader[i].loc[1];
+            if(cy > maxy) { maxy = cy; }
+            if(cx > maxx) { maxx = cx; }
+        }
+    }
+
+    //sx = 2200/maxx;
+    //sy = 1100/maxy;
+}
+
+function redraw() {
+    var canvas = document.getElementById('canvas01');
+    var wheight = window.innerHeight;
+    var wwidth = window.innerWidth;
+    sx = wwidth/2200;
+    sy = wheight/1100;
+    var ratio_canvas = 0;
+    if(sx > sy){
+        sx = sy;
+    } else {
+        sy = sx;
+    }
+    if(sx>0.73){
+        sx=0.73;
+        sy=0.73;
+    }
+
+    canvas.height=900*sy;
+    canvas.width=2200*sx;
+    var ctx = canvas.getContext('2d');
+    ctx.canvas.height=900*sy;
+    ctx.canvas.width=2200*sx;
+    ctx.clearRect(0,0,2200*sx,1100*sy);
+    ctx.drawImage(img,0,0,2200*sx,1100*sy);
+    drawNames(ctx, pos[0], '#00FF00');
+    //drawEdges(ctx, pos[0]);
+}
+
+
+function drawNames(ctx, data, color) {
+    for(var i = 0; i < data.tag.length; i++) {
+        var tag = data.tag[i];
+
+        if(!tag.loc)
+            continue;
+
+        if(tag.loc == [0,0])
+            continue;
+
+        if(document.getElementById('cb_'+i.toString()).checked){
+            ctx.beginPath();
+            ctx.fillStyle=idx_color[i];
+            if(a[i]==1){
+                ctx.fillStyle = '#000';
+
+            }
+            else if ((tag.loc[0]<641) && (tag.loc[1]<383)){
+                ctx.fillStyle = '#FF0000';
+            }
+
+            ctx.arc(((tag.loc[0]-7) * sx), ((tag.loc[1]-7) * sy),14*sx,0*Math.PI,2*Math.PI);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillText(tag.id, ((tag.loc[0]+20) * sx), ((tag.loc[1]+20) * sy));
+            index_by_id[data.id] = i;
+        }
+        else{
+            continue;
+        }
+
+
+    }
+
+    for(var i = 0; i < data.reader.length; i++) {
+        var reader = data.reader[i];
+
+        if(!reader.loc)
+            continue;
+
+        ctx.fillStyle='#000000';
+        ctx.fillRect(((reader.loc[0]-5) * sx), ((reader.loc[1]-5) * sy),10*sx,10*sx);
+        ctx.closePath();
+
+        ctx.fillText(reader.id, ((reader.loc[0]+15) * sx), ((reader.loc[1]+15) * sy));
+        index_by_id[data.id] = i;
+    }
+}
+
+function load_positions(initial) {
+    $.getJSON("http://10.237.43.176:8000/1.json", function(data){
+        if (data) {
+            pos[0] = data;
+            redraw();
+        }
+    });
+}
+function check1() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 1",10,20);
+    ctx2.fillText("Name:Ming-jye Sheng",10,40);
+    ctx2.fillText("ID:0001",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:Male",10,100);
+    sleep(12)
+}
+
+function uncheck1() {
+    a[0]=!a[0];
+}
+function check2() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 2",10,20);
+    ctx2.fillText("Name: Xiaoli Fu",10,40);
+    ctx2.fillText("ID:0002",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:Female",10,100);
+    sleep(12)
+}
+
+function uncheck2() {
+    a[1]=!a[1];
+}
+function check3() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 3",10,20);
+    ctx2.fillText("Name:",10,40);
+    ctx2.fillText("ID:",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:",10,100);
+    sleep(12)
+}
+function uncheck3() {
+    a[2]=!a[2];
+}
+function check4() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 4",10,20);
+    ctx2.fillText("Name:",10,40);
+    ctx2.fillText("ID:",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:",10,100);
+    sleep(12)
+}
+
+function uncheck4() {
+    a[3]=!a[3];
+}
+function check5() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 5",10,20);
+    ctx2.fillText("Name:",10,40);
+    ctx2.fillText("ID:",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:",10,100);
+    sleep(12)
+}
+
+function uncheck5() {
+    a[4]=!a[4];
+}
+function check6() {
+    var canvas2 = document.getElementById("showbroad");
+    var ctx2 = canvas2.getContext('2d');
+    ctx2.fillStyle = '#FFFFFF';
+    ctx2.fillRect(0,0,600,300);
+    ctx2.fillStyle = '#000';
+    ctx2.font = "18px Arial";
+    ctx2.fillText("Beacon 6",10,20);
+    ctx2.fillText("Name:",10,40);
+    ctx2.fillText("ID:",10,60);
+    ctx2.fillText("Age:",10,80);
+    ctx2.fillText("Gender:",10,100);
+    sleep(12)
+}
+
+function uncheck6() {
+    a[5]=!a[5];
+}
+function release1(){
+    a[0]=0;
+}
+function release2(){
+    a[1]=0;
+}
+function release3(){
+    a[2]=0;
+}
+function release4(){
+    a[3]=0;
+}
+function release5(){
+    a[4]=0;
+}
+function release6(){
+    a[5]=0;
+}
+</script>
+
+</body>
+</html>

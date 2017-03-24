@@ -1,0 +1,127 @@
+2016:12:13_10:38:39 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_10:38:43 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_10:38:45 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_10:38:56 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent014:/home/ioteye/agent OK
+2016:12:13_10:39:05 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent015:/home/ioteye/agent OK
+2016:12:13_10:39:30 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent107:/home/ioteye/agent OK
+2016:12:13_10:39:33 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent108:/home/ioteye/agent OK
+2016:12:13_10:39:35 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent109:/home/ioteye/agent OK
+2016:12:13_10:39:46 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent111:/home/ioteye/agent OK
+2016:12:13_10:39:52 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent113:/home/ioteye/agent OK
+2016:12:13_10:40:05 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent017:/home/ioteye/agent OK
+2016:12:13_10:40:08 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent018:/home/ioteye/agent OK
+2016:12:13_10:40:11 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent020:/home/ioteye/agent OK
+2016:12:13_10:50:19 sudo killall btagent OK
+2016:12:13_10:50:19 cd agent OK
+2016:12:13_10:50:19 sudo hciconfig hci0 down OK
+2016:12:13_10:50:19 sudo hciconfig hci0 up OK
+2016:12:13_10:50:19 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_10:50:32 sudo killall btagent OK
+2016:12:13_10:50:32 cd agent OK
+2016:12:13_10:50:32 sudo hciconfig hci0 down OK
+2016:12:13_10:50:32 sudo hciconfig hci0 up OK
+2016:12:13_10:50:32 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_10:51:16 sudo killall btagent OK
+2016:12:13_10:51:16 cd agent OK
+2016:12:13_10:51:16 sudo hciconfig hci0 down OK
+2016:12:13_10:51:16 sudo hciconfig hci0 up OK
+2016:12:13_10:51:16 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_11:04:17 sudo killall btagent OK
+2016:12:13_11:04:17 cd agent OK
+2016:12:13_11:04:17 sudo hciconfig hci0 down OK
+2016:12:13_11:04:17 sudo hciconfig hci0 up OK
+2016:12:13_11:04:17 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_11:05:51 sudo killall btagent OK
+2016:12:13_11:05:51 cd agent OK
+2016:12:13_11:05:51 sudo hciconfig hci0 down OK
+2016:12:13_11:05:51 sudo hciconfig hci0 up OK
+2016:12:13_11:05:51 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_11:06:48 sudo killall btagent OK
+2016:12:13_11:06:48 cd agent OK
+2016:12:13_11:06:48 sudo hciconfig hci0 down OK
+2016:12:13_11:06:48 sudo hciconfig hci0 up OK
+2016:12:13_11:06:48 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_11:11:17 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_11:11:21 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_11:11:24 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_11:11:51 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent014:/home/ioteye/agent OK
+2016:12:13_11:11:55 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent015:/home/ioteye/agent OK
+2016:12:13_11:12:09 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent107:/home/ioteye/agent OK
+2016:12:13_11:12:13 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent108:/home/ioteye/agent OK
+2016:12:13_11:12:16 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent109:/home/ioteye/agent OK
+2016:12:13_11:12:26 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent111:/home/ioteye/agent OK
+2016:12:13_11:12:54 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent113:/home/ioteye/agent OK
+2016:12:13_11:13:06 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent017:/home/ioteye/agent OK
+2016:12:13_11:13:10 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent018:/home/ioteye/agent OK
+2016:12:13_11:13:13 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent020:/home/ioteye/agent OK
+2016:12:13_11:16:36 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent112:/home/ioteye/agent OK
+2016:12:13_11:16:43 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent016:/home/ioteye/agent OK
+2016:12:13_11:24:48 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent014:/home/ioteye/agent OK
+2016:12:13_11:25:04 sudo killall btagent OK
+2016:12:13_11:25:04 cd agent OK
+2016:12:13_11:25:04 sudo hciconfig hci0 down OK
+2016:12:13_11:25:04 sudo hciconfig hci0 up OK
+2016:12:13_11:25:04 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_11:30:51 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_11:30:56 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_11:31:00 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_11:31:18 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent014:/home/ioteye/agent OK
+2016:12:13_11:31:23 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent015:/home/ioteye/agent OK
+2016:12:13_11:31:26 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent016:/home/ioteye/agent OK
+2016:12:13_11:31:34 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent107:/home/ioteye/agent OK
+2016:12:13_11:31:37 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent108:/home/ioteye/agent OK
+2016:12:13_11:31:40 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent109:/home/ioteye/agent OK
+2016:12:13_11:31:50 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent111:/home/ioteye/agent OK
+2016:12:13_11:31:53 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent112:/home/ioteye/agent OK
+2016:12:13_11:31:57 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent113:/home/ioteye/agent OK
+2016:12:13_11:32:07 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent017:/home/ioteye/agent OK
+2016:12:13_11:32:10 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent018:/home/ioteye/agent OK
+2016:12:13_11:32:13 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent020:/home/ioteye/agent OK
+2016:12:13_11:40:33 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent015:/home/ioteye/agent OK
+2016:12:13_11:40:52 sudo killall btagent OK
+2016:12:13_11:40:52 cd agent OK
+2016:12:13_11:40:52 sudo hciconfig hci0 down OK
+2016:12:13_11:40:52 sudo hciconfig hci0 up OK
+2016:12:13_11:40:52 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_12:57:45 sudo killall btagent OK
+2016:12:13_12:57:45 cd agent OK
+2016:12:13_12:57:45 sudo hciconfig hci0 down OK
+2016:12:13_12:57:45 sudo hciconfig hci0 up OK
+2016:12:13_12:57:45 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_13:55:52 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_13:56:00 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_13:56:19 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_13:56:33 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_13:56:36 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_13:56:41 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_13:59:44 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_13:59:48 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_13:59:51 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_14:04:36 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent101:/home/ioteye/agent OK
+2016:12:13_14:04:40 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent102:/home/ioteye/agent OK
+2016:12:13_14:04:47 rsync -a /home/ioteye/agent/btagent ioteye@ioteye-agent103:/home/ioteye/agent OK
+2016:12:13_14:08:08 sudo killall btagent OK
+2016:12:13_14:08:08 cd agent OK
+2016:12:13_14:08:08 sudo hciconfig hci0 down OK
+2016:12:13_14:08:08 sudo hciconfig hci0 up OK
+2016:12:13_14:08:08 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_14:21:21 sudo killall btagent OK
+2016:12:13_14:21:21 cd agent OK
+2016:12:13_14:21:21 sudo hciconfig hci0 down OK
+2016:12:13_14:21:21 sudo hciconfig hci0 up OK
+2016:12:13_14:21:21 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_16:11:59 sudo killall btagent OK
+2016:12:13_16:11:59 cd agent OK
+2016:12:13_16:11:59 sudo hciconfig hci0 down OK
+2016:12:13_16:11:59 sudo hciconfig hci0 up OK
+2016:12:13_16:11:59 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_16:12:08 sudo killall btagent OK
+2016:12:13_16:12:08 cd agent OK
+2016:12:13_16:12:08 sudo hciconfig hci0 down OK
+2016:12:13_16:12:08 sudo hciconfig hci0 up OK
+2016:12:13_16:12:08 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:13_16:13:49 sudo killall btagent OK
+2016:12:13_16:13:49 cd agent OK
+2016:12:13_16:13:49 sudo hciconfig hci0 down OK
+2016:12:13_16:13:49 sudo hciconfig hci0 up OK
+2016:12:13_16:13:49 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK

@@ -1,0 +1,40 @@
+2016:12:15_11:19:33 sudo killall btagent OK
+2016:12:15_11:19:33 cd agent OK
+2016:12:15_11:19:33 sudo hciconfig hci0 down OK
+2016:12:15_11:19:33 sudo hciconfig hci0 up OK
+2016:12:15_11:19:33 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_11:19:40 sudo killall btagent OK
+2016:12:15_11:19:40 cd agent OK
+2016:12:15_11:19:40 sudo hciconfig hci0 down OK
+2016:12:15_11:19:40 sudo hciconfig hci0 up OK
+2016:12:15_11:19:40 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_11:19:54 sudo killall btagent OK
+2016:12:15_11:19:54 cd agent OK
+2016:12:15_11:19:54 sudo hciconfig hci0 down OK
+2016:12:15_11:19:54 sudo hciconfig hci0 up OK
+2016:12:15_11:19:54 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_11:20:11 sudo killall btagent OK
+2016:12:15_11:20:11 cd agent OK
+2016:12:15_11:20:11 sudo hciconfig hci0 down OK
+2016:12:15_11:20:11 sudo hciconfig hci0 up OK
+2016:12:15_11:20:11 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_14:44:31 sudo killall btagent OK
+2016:12:15_14:44:31 cd agent OK
+2016:12:15_14:44:31 sudo hciconfig hci0 down OK
+2016:12:15_14:44:31 sudo hciconfig hci0 up OK
+2016:12:15_14:44:31 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_14:45:13 sudo killall btagent OK
+2016:12:15_14:45:13 cd agent OK
+2016:12:15_14:45:13 sudo hciconfig hci0 down OK
+2016:12:15_14:45:13 sudo hciconfig hci0 up OK
+2016:12:15_14:45:13 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_14:45:55 sudo killall btagent OK
+2016:12:15_14:45:55 cd agent OK
+2016:12:15_14:45:55 sudo hciconfig hci0 down OK
+2016:12:15_14:45:55 sudo hciconfig hci0 up OK
+2016:12:15_14:45:55 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
+2016:12:15_14:47:47 sudo killall btagent OK
+2016:12:15_14:47:47 cd agent OK
+2016:12:15_14:47:47 sudo hciconfig hci0 down OK
+2016:12:15_14:47:47 sudo hciconfig hci0 up OK
+2016:12:15_14:47:47 sudo nohup ./btagent -a 10.237.43.108 -w -d  OK
