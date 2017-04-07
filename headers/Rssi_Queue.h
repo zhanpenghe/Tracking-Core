@@ -253,7 +253,7 @@ void add_rssi_to_q(rssi_queue_t *q, rssi_t *r)
 	if(q == NULL || r == NULL) return;
 
 	//apply kalman filter here
-	r->rssi = (int) filter(&q->filter, (float)r->rssi);
+	//r->rssi = (int) filter(&q->filter, (float)r->rssi);
 
 	if(q->size < q->max){
 		enqueue(q, r);
@@ -350,6 +350,7 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 	int8_t room = -1, last_room = -1;
 	calc_prep_t prep;
 	pos_t pos;
+	char buf[64];
 
 	if(b == NULL) return;
 	if(b->size < 3) return;
@@ -369,6 +370,14 @@ void get_pos_for_beacon(beacon_t *b, pos_list_t *list, agent_info_t infos[], roo
 		bound(&pos);
 
 		add_pos(b, list, &pos, room);
+
+		snprintf(buf, 64, "%s|%d|%f|%f", b->mac, room, pos.loc.x, pos.loc.y);
+		printf("[DEBUG]%s\n", buf);
+		logger_t* temp = (logger_t *)get_pos_logger();
+		pthread_mutex_lock(&temp->lock);
+		log_to_file(temp, buf, strlen(buf));
+		log_to_file(temp, "\n", 1);
+		pthread_mutex_unlock(&temp->lock);
 	}
 }
 

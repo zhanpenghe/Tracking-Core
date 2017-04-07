@@ -37,3 +37,5 @@ void *get_agent_infos();
 int get_agent_num();
 
 void *get_agent_list();
+
+void *get_pos_logger();

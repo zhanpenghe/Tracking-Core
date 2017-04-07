@@ -20,6 +20,7 @@ int beacon_num = 0;
 pthread_t output_thread;
 //Loggers for I/O
 logger_t *logger;
+logger_t *logger_for_position;
 
 //data structures
 agent_list_t *agent_list;	// agent handlers 
@@ -85,9 +86,14 @@ int main(int argc, char **argv)
     }
 
     //logger for rssi
-    logger = (logger_t*) malloc(sizeof(logger_t));
-    init_logger(logger, 'w', "log.txt");
+	logger = (logger_t*) malloc(sizeof(logger_t));
+	init_logger(logger, 'w', "log.txt");
 	printf("[INFO] Successfully created logger for rssi\n");
+
+	//logger for rssi
+	logger_for_position = (logger_t*) malloc(sizeof(logger_t));
+	init_logger(logger_for_position, 'w', "log_pos.txt");
+	printf("[INFO] Successfully created logger for position\n");
 
 	//agent list(all agent threads)
     agent_list = (agent_list_t *)malloc(sizeof(agent_list_t));
@@ -179,6 +185,7 @@ void SIGINT_Handler(int sig)
 	pthread_mutex_unlock(&position_list->lock);
 
 	free_logger(logger);
+	free_logger(logger_for_position);
 	printf("[INFO] Logger is freed.\n");
 	print_blist(list);
 	free_blist(list);
@@ -352,4 +359,9 @@ void *get_agent_infos()
 int get_agent_num()
 {
 	return agent_num;
+}
+
+void *get_pos_logger()
+{
+	return logger_for_position;
 }
